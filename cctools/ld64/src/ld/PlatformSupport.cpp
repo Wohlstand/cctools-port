@@ -51,7 +51,7 @@ const Platform basePlatform(Platform platform)
 
 static const PlatformInfo sAllSupportedPlatforms[] = {
     { Platform::unknown,           Platform::unknown,      "unknown",           "",                                NULL,                        0x00000000, 0x00000000, 0,                       false, true,  PlatEnforce::error,                     PlatEnforce::error },
-    { Platform::macOS,             Platform::macOS,        "macOS",             "-macos_version_min",             "MACOSX_DEPLOYMENT_TARGET",   0x000A0E00, 0x000A0800, LC_VERSION_MIN_MACOSX,   false, true,  PlatEnforce::warnInternalErrorExternal, PlatEnforce::warning },
+	{ Platform::macOS,             Platform::macOS,        "macOS",             "-macos_version_min",             "MACOSX_DEPLOYMENT_TARGET",   0x000A0E00, 0x000A0400, LC_VERSION_MIN_MACOSX,   false, true,  PlatEnforce::warnInternalErrorExternal, PlatEnforce::warning },
     { Platform::iOS,               Platform::iOS,          "iOS",               "-ios_version_min",               "IPHONEOS_DEPLOYMENT_TARGET", 0x000C0000, 0x00070000, LC_VERSION_MIN_IPHONEOS, true,  true,  PlatEnforce::warnInternalErrorExternal, PlatEnforce::warning },
     { Platform::tvOS,              Platform::tvOS,         "tvOS",              "-tvos_version_min",              "TVOS_DEPLOYMENT_TARGET",     0x000C0000, 0x00070000, LC_VERSION_MIN_TVOS,     true,  true,  PlatEnforce::warnInternalErrorExternal, PlatEnforce::warning },
     { Platform::watchOS,           Platform::watchOS,      "watchOS",           "-watchos_version_min",           "WATCHOS_DEPLOYMENT_TARGET",  0x00050000, 0x00020000, LC_VERSION_MIN_WATCHOS,  true,  true,  PlatEnforce::warnInternalErrorExternal, PlatEnforce::warning },
