@@ -205,6 +205,7 @@ protected:
 								_beginAtoms(NULL), _endAtoms(NULL), _hasAliases(false) { }
 
 
+	bool							addRelocFixup_powerpc(class Parser<A>& parser,const macho_relocation_info<typename A::P>* reloc);
 	Atom<A>*						findContentAtomByAddress(pint_t addr, class Atom<A>* start, class Atom<A>* end);
 	uint32_t						x86_64PcRelOffset(uint8_t r_type);
 	void							addLOH(class Parser<A>& parser, int kind, int count, const uint64_t addrs[]);
@@ -1346,6 +1347,31 @@ Parser<A>::Parser(const uint8_t* fileContent, uint64_t fileLength, const char* p
 {
 }
 
+template <>
+bool Parser<ppc>::validFile(const uint8_t* fileContent, bool, cpu_subtype_t)
+{
+	const macho_header<P>* header = (const macho_header<P>*)fileContent;
+	if ( header->magic() != MH_MAGIC )
+		return false;
+	if ( header->cputype() != CPU_TYPE_POWERPC )
+		return false;
+	if ( header->filetype() != MH_OBJECT )
+		return false;
+	return true;
+}
+
+template <>
+bool Parser<ppc64>::validFile(const uint8_t* fileContent, bool, cpu_subtype_t)
+{
+	const macho_header<P>* header = (const macho_header<P>*)fileContent;
+	if ( header->magic() != MH_MAGIC_64 )
+		return false;
+	if ( header->cputype() != CPU_TYPE_POWERPC64 )
+		return false;
+	if ( header->filetype() != MH_OBJECT )
+		return false;
+	return true;
+}
 
 template <>
 bool Parser<x86>::validFile(const uint8_t* fileContent, bool, cpu_subtype_t)
@@ -1424,6 +1450,40 @@ bool Parser<arm64_32>::validFile(const uint8_t* fileContent, bool subtypeMustMat
 	return true;
 }
 #endif
+
+template <>
+const char* Parser<ppc>::fileKind(const uint8_t* fileContent)
+{
+	const macho_header<P>* header = (const macho_header<P>*)fileContent;
+	if ( header->magic() != MH_MAGIC )
+		return NULL;
+	if ( header->cputype() != CPU_TYPE_POWERPC )
+		return NULL;
+	switch ( header->cpusubtype() ) {
+		case CPU_SUBTYPE_POWERPC_750:
+			return "ppc750";
+		case CPU_SUBTYPE_POWERPC_7400:
+			return "ppc7400";
+		case CPU_SUBTYPE_POWERPC_7450:
+			return "ppc7450";
+		case CPU_SUBTYPE_POWERPC_970:
+			return "ppc970";
+		case CPU_SUBTYPE_POWERPC_ALL:
+			return "ppc";
+	}
+	return "ppc???";
+}
+
+template <>
+const char* Parser<ppc64>::fileKind(const uint8_t* fileContent)
+{
+	const macho_header<P>* header = (const macho_header<P>*)fileContent;
+	if ( header->magic() != MH_MAGIC )
+		return NULL;
+	if ( header->cputype() != CPU_TYPE_POWERPC64 )
+		return NULL;
+	return "ppc64";
+}
 
 template <>
 const char* Parser<x86>::fileKind(const uint8_t* fileContent)

@@ -2242,6 +2242,11 @@ void doPass(const Options& opts, ld::Internal& state)
 			}
 			break;
 #endif
+#if SUPPORT_ARCH_ppc
+		case CPU_TYPE_POWERPC:
+			doPass<ppc, false>(opts, state);
+			break;
+#endif
 #if SUPPORT_ARCH_arm_any
 		case CPU_TYPE_ARM:
 			doPass<arm, true>(opts, state);

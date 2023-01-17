@@ -707,6 +707,8 @@ uint32_t HeaderAndLoadCommandsAtom<A>::flags() const
 	return bits;
 }
 
+template <> uint32_t HeaderAndLoadCommandsAtom<ppc>::magic() const		{ return MH_MAGIC; }
+template <> uint32_t HeaderAndLoadCommandsAtom<ppc64>::magic() const	{ return MH_MAGIC_64; }
 template <> uint32_t HeaderAndLoadCommandsAtom<x86>::magic() const		{ return MH_MAGIC; }
 template <> uint32_t HeaderAndLoadCommandsAtom<x86_64>::magic() const	{ return MH_MAGIC_64; }
 template <> uint32_t HeaderAndLoadCommandsAtom<arm>::magic() const		{ return MH_MAGIC; }
@@ -715,6 +717,8 @@ template <> uint32_t HeaderAndLoadCommandsAtom<arm64>::magic() const		{ return M
 template <> uint32_t HeaderAndLoadCommandsAtom<arm64_32>::magic() const		{ return MH_MAGIC; }
 #endif
 
+template <> uint32_t HeaderAndLoadCommandsAtom<ppc>::cpuType() const	{ return CPU_TYPE_POWERPC; }
+template <> uint32_t HeaderAndLoadCommandsAtom<ppc64>::cpuType() const	{ return CPU_TYPE_POWERPC64; }
 template <> uint32_t HeaderAndLoadCommandsAtom<x86>::cpuType() const	{ return CPU_TYPE_I386; }
 template <> uint32_t HeaderAndLoadCommandsAtom<x86_64>::cpuType() const	{ return CPU_TYPE_X86_64; }
 template <> uint32_t HeaderAndLoadCommandsAtom<arm>::cpuType() const	{ return CPU_TYPE_ARM; }
@@ -722,6 +726,21 @@ template <> uint32_t HeaderAndLoadCommandsAtom<arm64>::cpuType() const	{ return 
 #if SUPPORT_ARCH_arm64_32
 template <> uint32_t HeaderAndLoadCommandsAtom<arm64_32>::cpuType() const	{ return CPU_TYPE_ARM64_32; }
 #endif
+
+template <>
+uint32_t HeaderAndLoadCommandsAtom<ppc>::cpuSubType() const
+{
+    return _state.cpuSubType;
+}
+
+template <>
+uint32_t HeaderAndLoadCommandsAtom<ppc64>::cpuSubType() const
+{
+//    if ( (_options.outputKind() == Options::kDynamicExecutable) && (_options.macosxVersionMin() >= ld::mac10_5) )
+//        return (CPU_SUBTYPE_POWERPC_ALL | 0x80000000);
+//    else
+	return CPU_SUBTYPE_POWERPC_ALL;
+}
 
 
 template <>
@@ -1318,6 +1337,53 @@ uint8_t* HeaderAndLoadCommandsAtom<A>::copySourceVersionLoadCommand(uint8_t* p) 
 	cmd->set_version(_options.sourceVersion());
 	return p + sizeof(macho_source_version_command<P>);
 }
+
+
+template <>
+uint32_t HeaderAndLoadCommandsAtom<ppc>::threadLoadCommandSize() const
+{
+    return this->alignedSize(16 + 40*4);	// base size + PPC_THREAD_STATE_COUNT * 4
+}
+
+
+template <>
+uint8_t* HeaderAndLoadCommandsAtom<ppc>::copyThreadsLoadCommand(uint8_t* p) const
+{
+    assert(_state.entryPoint != NULL);
+    pint_t start = _state.entryPoint->finalAddress();
+    macho_thread_command<ppc::P>* cmd = (macho_thread_command<ppc::P>*)p;
+    cmd->set_cmd(LC_UNIXTHREAD);
+    cmd->set_cmdsize(threadLoadCommandSize());
+    cmd->set_flavor(1);				// PPC_THREAD_STATE
+    cmd->set_count(40);				// PPC_THREAD_STATE_COUNT;
+    cmd->set_thread_register(0, start);
+    if ( _options.hasCustomStack() )
+        cmd->set_thread_register(3, _options.customStackAddr());	// r1
+    return p + threadLoadCommandSize();
+}
+
+template <>
+uint32_t HeaderAndLoadCommandsAtom<ppc64>::threadLoadCommandSize() const
+{
+    return this->alignedSize(16 + 76*4);	// base size + PPC_THREAD_STATE64_COUNT * 4
+}
+
+template <>
+uint8_t* HeaderAndLoadCommandsAtom<ppc64>::copyThreadsLoadCommand(uint8_t* p) const
+{
+    assert(_state.entryPoint != NULL);
+    pint_t start = _state.entryPoint->finalAddress();
+    macho_thread_command<ppc::P>* cmd = (macho_thread_command<ppc::P>*)p;
+    cmd->set_cmd(LC_UNIXTHREAD);
+    cmd->set_cmdsize(threadLoadCommandSize());
+    cmd->set_flavor(5);				// PPC_THREAD_STATE64
+    cmd->set_count(76);				// PPC_THREAD_STATE64_COUNT;
+    cmd->set_thread_register(0, start);
+    if ( _options.hasCustomStack() )
+        cmd->set_thread_register(3, _options.customStackAddr());	// r1
+    return p + threadLoadCommandSize();
+}
+
 
 
 template <>

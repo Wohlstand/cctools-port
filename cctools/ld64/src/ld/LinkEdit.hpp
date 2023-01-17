@@ -69,7 +69,7 @@ public:
 			value = value >> 7;
 		} while( byte >= 0x80 );
 	}
-	
+
 	void append_sleb128(int64_t value) {
 		bool isNeg = ( value < 0 );
 		uint8_t byte;
@@ -77,17 +77,17 @@ public:
 		do {
 			byte = value & 0x7F;
 			value = value >> 7;
-			if ( isNeg ) 
+			if ( isNeg )
 				more = ( (value != -1) || ((byte & 0x40) == 0) );
 			else
 				more = ( (value != 0) || ((byte & 0x40) != 0) );
 			if ( more )
 				byte |= 0x80;
 			_data.push_back(byte);
-		} 
+		}
 		while( more );
 	}
-	
+
 	void append_delta_encoded_uleb128_run(uint64_t start, const std::vector<uint64_t>& locations) {
 		uint64_t lastAddr = start;
 		for(std::vector<uint64_t>::const_iterator it = locations.begin(); it != locations.end(); ++it) {
@@ -104,11 +104,11 @@ public:
 			_data.push_back(*s);
 		_data.push_back('\0');
 	}
-	
+
 	void append_byte(uint8_t byte) {
 		_data.push_back(byte);
 	}
-	
+
 	void append_mem(const void* mem, size_t len) {
 		_data.insert(_data.end(), (uint8_t*)mem, (uint8_t*)mem + len);
 	}
@@ -129,7 +129,7 @@ public:
 		} while ( value != 0 );
 		return result;
 	}
-	
+
 	void pad_to_size(unsigned int alignment) {
 		while ( (_data.size() % alignment) != 0 )
 			_data.push_back(0);
@@ -145,20 +145,20 @@ public:
 	virtual ld::File*							file() const		{ return NULL; }
 	virtual uint64_t							objectAddress() const { return 0; }
 	virtual uint64_t							size() const;
-	virtual void								copyRawContent(uint8_t buffer[]) const; 
+	virtual void								copyRawContent(uint8_t buffer[]) const;
 
 	virtual void								encode() const = 0;
 
 	const uint8_t*								rawContent() const { return this->_encodedData.start(); }
 
-												LinkEditAtom(const Options& opts, ld::Internal& state, 
+												LinkEditAtom(const Options& opts, ld::Internal& state,
 																OutputFile& writer, const ld::Section& sect,
 																unsigned int pointerSize)
 												: ld::Atom(sect, ld::Atom::definitionRegular,
 															ld::Atom::combineNever, ld::Atom::scopeTranslationUnit,
 															ld::Atom::typeUnclassified, ld::Atom::symbolTableNotIn,
-															false, false, false, ld::Atom::Alignment(log2(pointerSize))), 
-														_options(opts), _state(state), _writer(writer), 
+															false, false, false, ld::Atom::Alignment(log2(pointerSize))),
+														_options(opts), _state(state), _writer(writer),
 														_encoded(false) { }
 protected:
 	const Options&				_options;
@@ -209,7 +209,7 @@ private:
 	typedef typename A::P						P;
 	typedef typename A::P::E					E;
 	typedef typename A::P::uint_t				pint_t;
-	
+
 	static ld::Section			_s_section;
 };
 
@@ -221,7 +221,7 @@ template <typename A>
 void RebaseInfoAtom<A>::encode() const
 {
 	// omit relocs if this was supposed to be PIE but PIE not possible
-	if ( _options.positionIndependentExecutable() && this->_writer.pieDisabled ) 
+	if ( _options.positionIndependentExecutable() && this->_writer.pieDisabled )
 		return;
 
 	// sort rebase info by type, then address
@@ -230,7 +230,7 @@ void RebaseInfoAtom<A>::encode() const
 		return;
 
 	std::sort(info.begin(), info.end());
-	
+
 	// use encoding based on target minOS
 	if ( _options.useLinkedListBinding() && !this->_writer._hasUnalignedFixup ) {
 		if ( info.back()._type != REBASE_TYPE_POINTER )
@@ -252,7 +252,7 @@ void RebaseInfoAtom<A>::encodeV1() const
 	std::vector<rebase_tmp> mid;
 	uint64_t curSegStart = 0;
 	uint64_t curSegEnd = 0;
-	uint32_t curSegIndex = 0;	
+	uint32_t curSegIndex = 0;
 	uint8_t type = 0;
 	uint64_t address = (uint64_t)(-1);
 	for (std::vector<OutputFile::RebaseInfo>::iterator it = info.begin(); it != info.end(); ++it) {
@@ -299,8 +299,8 @@ void RebaseInfoAtom<A>::encodeV1() const
 	// optimize phase 2, combine rebase/add pairs
 	dst = &mid[0];
 	for (const rebase_tmp* src = &mid[0]; src->opcode != REBASE_OPCODE_DONE; ++src) {
-		if ( (src->opcode == REBASE_OPCODE_DO_REBASE_ULEB_TIMES) 
-				&& (src->operand1 == 1) 
+		if ( (src->opcode == REBASE_OPCODE_DO_REBASE_ULEB_TIMES)
+				&& (src->operand1 == 1)
 				&& (src[1].opcode == REBASE_OPCODE_ADD_ADDR_ULEB)) {
 			dst->opcode = REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB;
 			dst->operand1 = src[1].operand1;
@@ -312,16 +312,16 @@ void RebaseInfoAtom<A>::encodeV1() const
 		}
 	}
 	dst->opcode = REBASE_OPCODE_DONE;
-	
+
 	// optimize phase 3, compress packed runs of REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB with
 	// same addr delta into one REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB
 	dst = &mid[0];
 	for (const rebase_tmp* src = &mid[0]; src->opcode != REBASE_OPCODE_DONE; ++src) {
 		uint64_t delta = src->operand1;
-		if ( (src->opcode == REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB) 
-				&& (src[1].opcode == REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB) 
-				&& (src[2].opcode == REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB) 
-				&& (src[1].operand1 == delta) 
+		if ( (src->opcode == REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB)
+				&& (src[1].opcode == REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB)
+				&& (src[2].opcode == REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB)
+				&& (src[1].operand1 == delta)
 				&& (src[2].operand1 == delta) ) {
 			// found at least three in a row, this is worth compressing
 			dst->opcode = REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB;
@@ -341,10 +341,10 @@ void RebaseInfoAtom<A>::encodeV1() const
 		}
 	}
 	dst->opcode = REBASE_OPCODE_DONE;
-	
+
 	// optimize phase 4, use immediate encodings
 	for (rebase_tmp* p = &mid[0]; p->opcode != REBASE_OPCODE_DONE; ++p) {
-		if ( (p->opcode == REBASE_OPCODE_ADD_ADDR_ULEB) 
+		if ( (p->opcode == REBASE_OPCODE_ADD_ADDR_ULEB)
 			&& (p->operand1 < (15*sizeof(pint_t)))
 			&& ((p->operand1 % sizeof(pint_t)) == 0) ) {
 			p->opcode = REBASE_OPCODE_ADD_ADDR_IMM_SCALED;
@@ -405,8 +405,8 @@ void RebaseInfoAtom<A>::encodeV1() const
 				break;
 		}
 	}
-	
-		
+
+
 	// align to pointer size
 	this->_encodedData.pad_to_size(sizeof(pint_t));
 
@@ -439,7 +439,7 @@ private:
 
 	struct binding_tmp
 	{
-		binding_tmp(uint8_t op, uint64_t p1, uint64_t p2=0, const char* s=NULL) 
+		binding_tmp(uint8_t op, uint64_t p1, uint64_t p2=0, const char* s=NULL)
 			: opcode(op), operand1(p1), operand2(p2), name(s) {}
 		uint8_t		opcode;
 		uint64_t	operand1;
@@ -477,7 +477,7 @@ void BindingInfoAtom<A>::encodeV1() const
 	std::vector<binding_tmp> mid;
 	uint64_t curSegStart = 0;
 	uint64_t curSegEnd = 0;
-	uint32_t curSegIndex = 0;	
+	uint32_t curSegIndex = 0;
 	int ordinal = 0x80000000;
 	const char* symbolName = NULL;
 	uint8_t type = 0;
@@ -526,7 +526,7 @@ void BindingInfoAtom<A>::encodeV1() const
 	// optimize phase 1, combine bind/add pairs
 	binding_tmp* dst = &mid[0];
 	for (const binding_tmp* src = &mid[0]; src->opcode != BIND_OPCODE_DONE; ++src) {
-		if ( (src->opcode == BIND_OPCODE_DO_BIND) 
+		if ( (src->opcode == BIND_OPCODE_DO_BIND)
 				&& (src[1].opcode == BIND_OPCODE_ADD_ADDR_ULEB) ) {
 			dst->opcode = BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB;
 			dst->operand1 = src[1].operand1;
@@ -544,8 +544,8 @@ void BindingInfoAtom<A>::encodeV1() const
 	dst = &mid[0];
 	for (const binding_tmp* src = &mid[0]; src->opcode != BIND_OPCODE_DONE; ++src) {
 		uint64_t delta = src->operand1;
-		if ( (src->opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB) 
-				&& (src[1].opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB) 
+		if ( (src->opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB)
+				&& (src[1].opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB)
 				&& (src[1].operand1 == delta) ) {
 			// found at least two in a row, this is worth compressing
 			dst->opcode = BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB;
@@ -565,10 +565,10 @@ void BindingInfoAtom<A>::encodeV1() const
 		}
 	}
 	dst->opcode = BIND_OPCODE_DONE;
-	
+
 	// optimize phase 3, use immediate encodings
 	for (binding_tmp* p = &mid[0]; p->opcode != REBASE_OPCODE_DONE; ++p) {
-		if ( (p->opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB) 
+		if ( (p->opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB)
 			&& (p->operand1 < (15*sizeof(pint_t)))
 			&& ((p->operand1 % sizeof(pint_t)) == 0) ) {
 			p->opcode = BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED;
@@ -577,7 +577,7 @@ void BindingInfoAtom<A>::encodeV1() const
 		else if ( (p->opcode == BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB) && (p->operand1 <= 15) ) {
 			p->opcode = BIND_OPCODE_SET_DYLIB_ORDINAL_IMM;
 		}
-	}	
+	}
 	dst->opcode = BIND_OPCODE_DONE;
 
 	// convert to compressed encoding
@@ -648,7 +648,7 @@ void BindingInfoAtom<A>::encodeV1() const
 				break;
 		}
 	}
-	
+
 	// align to pointer size
 	this->_encodedData.pad_to_size(sizeof(pint_t));
 
@@ -900,7 +900,7 @@ private:
 	typedef typename A::P::uint_t				pint_t;
 
 	struct WeakBindingSorter
-	{	
+	{
 		 bool operator()(const OutputFile::BindingInfo& left, const OutputFile::BindingInfo& right)
 		 {
 			// sort by symbol, type, address
@@ -911,10 +911,10 @@ private:
 			return  (left._address < right._address);
 		 }
 	};
-	
+
 	struct binding_tmp
 	{
-		binding_tmp(uint8_t op, uint64_t p1, uint64_t p2=0, const char* s=NULL) 
+		binding_tmp(uint8_t op, uint64_t p1, uint64_t p2=0, const char* s=NULL)
 			: opcode(op), operand1(p1), operand2(p2), name(s) {}
 		uint8_t		opcode;
 		uint64_t	operand1;
@@ -940,13 +940,13 @@ void WeakBindingInfoAtom<A>::encode() const
 		return;
 	}
 	std::sort(info.begin(), info.end(), WeakBindingSorter());
-	
+
 	// convert to temp encoding that can be more easily optimized
 	std::vector<binding_tmp> mid;
 	mid.reserve(info.size());
 	uint64_t curSegStart = 0;
 	uint64_t curSegEnd = 0;
-	uint32_t curSegIndex = 0;	
+	uint32_t curSegIndex = 0;
 	const char* symbolName = NULL;
 	uint8_t type = 0;
 	uint64_t address = (uint64_t)(-1);
@@ -988,7 +988,7 @@ void WeakBindingInfoAtom<A>::encode() const
 	// optimize phase 1, combine bind/add pairs
 	binding_tmp* dst = &mid[0];
 	for (const binding_tmp* src = &mid[0]; src->opcode != BIND_OPCODE_DONE; ++src) {
-		if ( (src->opcode == BIND_OPCODE_DO_BIND) 
+		if ( (src->opcode == BIND_OPCODE_DO_BIND)
 				&& (src[1].opcode == BIND_OPCODE_ADD_ADDR_ULEB) ) {
 			dst->opcode = BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB;
 			dst->operand1 = src[1].operand1;
@@ -1006,8 +1006,8 @@ void WeakBindingInfoAtom<A>::encode() const
 	dst = &mid[0];
 	for (const binding_tmp* src = &mid[0]; src->opcode != BIND_OPCODE_DONE; ++src) {
 		uint64_t delta = src->operand1;
-		if ( (src->opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB) 
-				&& (src[1].opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB) 
+		if ( (src->opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB)
+				&& (src[1].opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB)
 				&& (src[1].operand1 == delta) ) {
 			// found at least two in a row, this is worth compressing
 			dst->opcode = BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB;
@@ -1027,16 +1027,16 @@ void WeakBindingInfoAtom<A>::encode() const
 		}
 	}
 	dst->opcode = BIND_OPCODE_DONE;
-	
+
 	// optimize phase 3, use immediate encodings
 	for (binding_tmp* p = &mid[0]; p->opcode != REBASE_OPCODE_DONE; ++p) {
-		if ( (p->opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB) 
+		if ( (p->opcode == BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB)
 			&& (p->operand1 < (15*sizeof(pint_t)))
 			&& ((p->operand1 % sizeof(pint_t)) == 0) ) {
 			p->opcode = BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED;
 			p->operand1 = p->operand1/sizeof(pint_t);
 		}
-	}	
+	}
 	dst->opcode = BIND_OPCODE_DONE;
 
 
@@ -1109,14 +1109,14 @@ void WeakBindingInfoAtom<A>::encode() const
 				break;
 		}
 	}
-	
+
 	// align to pointer size
 	this->_encodedData.pad_to_size(sizeof(pint_t));
 
 	this->_encoded = true;
 
 	if (log) fprintf(stderr, "total weak binding info size = %ld\n", this->_encodedData.size());
-	
+
 }
 
 
@@ -1137,7 +1137,7 @@ private:
 	typedef typename A::P						P;
 	typedef typename A::P::E					E;
 	typedef typename A::P::uint_t				pint_t;
-	
+
 	static ld::Section			_s_section;
 };
 
@@ -1158,12 +1158,12 @@ void LazyBindingInfoAtom<A>::encode() const
 		// write address to bind
 		uint64_t segStart = 0;
 		uint64_t segEnd = 0;
-		uint32_t segIndex = 0;	
+		uint32_t segIndex = 0;
 		if ( ! this->_writer.findSegment(this->_state, it->_address, &segStart, &segEnd, &segIndex) )
 			throw "lazy binding address outside range of any segment";
 		this->_encodedData.append_byte(BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB | segIndex);
 		this->_encodedData.append_uleb128(it->_address - segStart);
-		
+
 		// write ordinal
 		if ( it->_libraryOrdinal <= 0 ) {
 			// special lookups are encoded as negative numbers in BindingInfo
@@ -1184,10 +1184,10 @@ void LazyBindingInfoAtom<A>::encode() const
 		this->_encodedData.append_byte(BIND_OPCODE_DO_BIND);
 		this->_encodedData.append_byte(BIND_OPCODE_DONE);
 	}
-	
+
 	// align to pointer size
 	this->_encodedData.pad_to_size(sizeof(pint_t));
-	
+
 	this->_encoded = true;
 	//fprintf(stderr, "lazy binding info size = %ld, for %ld entries\n", _encodedData.size(), allLazys.size());
 }
@@ -1407,14 +1407,14 @@ private:
 	struct TrieEntriesSorter
 	{
 		TrieEntriesSorter(const Options& o) : _options(o) {}
-		
+
 		 bool operator()(const mach_o::trie::Entry& left, const mach_o::trie::Entry& right)
 		 {
 			unsigned int leftOrder;
 			unsigned int rightOrder;
 			_options.exportedSymbolOrder(left.name, &leftOrder);
 			_options.exportedSymbolOrder(right.name, &rightOrder);
-			if ( leftOrder != rightOrder ) 
+			if ( leftOrder != rightOrder )
 				return (leftOrder < rightOrder);
 			else
 				return (left.address < right.address);
@@ -1422,7 +1422,7 @@ private:
 	private:
 		const Options&	_options;
 	};
-	
+
 	static ld::Section			_s_section;
 };
 
@@ -1516,8 +1516,8 @@ void ExportInfoAtom<A>::encode() const
 			}
 			entry.name = atom->name();
 			entry.flags = flags;
-			entry.address = address; 
-			entry.other = other; 
+			entry.address = address;
+			entry.other = other;
 			entry.importName = NULL;
 			entries.push_back(entry);
 		}
@@ -1532,7 +1532,7 @@ void ExportInfoAtom<A>::encode() const
 
 	// sort vector by -exported_symbols_order, and any others by address
 	std::sort(entries.begin(), entries.end(), TrieEntriesSorter(_options));
-	
+
 	// create trie
 	mach_o::trie::makeTrie(entries, this->_encodedData.bytes());
 
@@ -1542,8 +1542,60 @@ void ExportInfoAtom<A>::encode() const
 
 	// align to pointer size
 	this->_encodedData.pad_to_size(sizeof(pint_t));
-	
+
 	this->_encoded = true;
+}
+
+
+template <typename A>
+class SplitSegInfoOldAtom : public LinkEditAtom
+{
+public:
+												SplitSegInfoOldAtom(const Options& opts, ld::Internal& state, OutputFile& writer)
+													: LinkEditAtom(opts, state, writer, _s_section, sizeof(pint_t)) { }
+
+	// overrides of ld::Atom
+	virtual const char*							name() const		{ return "split seg info"; }
+	// overrides of LinkEditAtom
+	virtual void								encode() const;
+
+private:
+	typedef typename A::P						P;
+	typedef typename A::P::E					E;
+	typedef typename A::P::uint_t				pint_t;
+
+	void										addSplitSegInfo(uint64_t address, ld::Fixup::Kind k, uint32_t) const;
+	void										uleb128EncodeAddresses(const std::vector<uint64_t>& locations) const;
+
+	mutable std::vector<uint64_t>				_32bitPointerLocations;
+	mutable std::vector<uint64_t>				_64bitPointerLocations;
+	mutable std::vector<uint64_t>				_ppcHi16Locations;
+	mutable std::vector<uint64_t>				_thumbLo16Locations;
+	mutable std::vector<uint64_t>				_thumbHi16Locations[16];
+	mutable std::vector<uint64_t>				_armLo16Locations;
+	mutable std::vector<uint64_t>				_armHi16Locations[16];
+
+
+	static ld::Section			_s_section;
+};
+
+template <typename A>
+ld::Section SplitSegInfoOldAtom<A>::_s_section("__LINKEDIT", "__splitSegInfo", ld::Section::typeLinkEdit, true);
+
+template <>
+void SplitSegInfoOldAtom<ppc>::addSplitSegInfo(uint64_t address, ld::Fixup::Kind kind, uint32_t extra) const
+{
+    switch (kind) {
+        case ld::Fixup::kindStorePPCPicHigh16AddLow:
+            _ppcHi16Locations.push_back(address);
+            break;
+        case ld::Fixup::kindStoreBigEndian32:
+            _32bitPointerLocations.push_back(address);
+            break;
+        default:
+            warning("codegen at address 0x%08llX prevents image from working in dyld shared cache", address);
+            break;
+    }
 }
 
 
@@ -1569,6 +1621,7 @@ private:
 
 	mutable std::vector<uint64_t>				_32bitPointerLocations;
 	mutable std::vector<uint64_t>				_64bitPointerLocations;
+	mutable std::vector<uint64_t>				_ppcHi16Locations;
 	mutable std::vector<uint64_t>				_thumbLo16Locations;
 	mutable std::vector<uint64_t>				_thumbHi16Locations[16];
 	mutable std::vector<uint64_t>				_armLo16Locations;
@@ -1581,6 +1634,22 @@ private:
 
 template <typename A>
 ld::Section SplitSegInfoV1Atom<A>::_s_section("__LINKEDIT", "__splitSegInfo", ld::Section::typeLinkEdit, true);
+
+template <>
+void SplitSegInfoV1Atom<ppc>::addSplitSegInfo(uint64_t address, ld::Fixup::Kind kind, uint32_t extra) const
+{
+	switch (kind) {
+		case ld::Fixup::kindStorePPCPicHigh16AddLow:
+			_ppcHi16Locations.push_back(address);
+			break;
+		case ld::Fixup::kindStoreBigEndian32:
+			_32bitPointerLocations.push_back(address);
+			break;
+		default:
+			warning("codegen at address 0x%08llX prevents image from working in dyld shared cache", address);
+			break;
+	}
+}
 
 template <>
 void SplitSegInfoV1Atom<x86_64>::addSplitSegInfo(uint64_t address, ld::Fixup::Kind kind, uint32_t extra) const
@@ -1644,14 +1713,14 @@ void SplitSegInfoV1Atom<arm>::addSplitSegInfo(uint64_t address, ld::Fixup::Kind 
         case ld::Fixup::kindStoreARMLow16:
  			_armLo16Locations.push_back(address);
 			break;
-       case ld::Fixup::kindStoreThumbLow16: 
+       case ld::Fixup::kindStoreThumbLow16:
 			_thumbLo16Locations.push_back(address);
 			break;
-        case ld::Fixup::kindStoreARMHigh16: 
+        case ld::Fixup::kindStoreARMHigh16:
             assert(extra < 16);
 			_armHi16Locations[extra].push_back(address);
 			break;
-        case ld::Fixup::kindStoreThumbHigh16: 
+        case ld::Fixup::kindStoreThumbHigh16:
             assert(extra < 16);
 			_thumbHi16Locations[extra].push_back(address);
 			break;
@@ -1734,7 +1803,7 @@ void SplitSegInfoV1Atom<A>::uleb128EncodeAddresses(const std::vector<uint64_t>& 
 		//fprintf(stderr, "nextAddr=0x%0llX\n", (uint64_t)nextAddr);
 		uint64_t delta = nextAddr - addr;
 		//fprintf(stderr, "delta=0x%0llX\n", delta);
-		if ( delta == 0 ) 
+		if ( delta == 0 )
 			throw "double split seg info for same address";
 		// uleb128 encode
 		uint8_t byte;
@@ -1745,7 +1814,7 @@ void SplitSegInfoV1Atom<A>::uleb128EncodeAddresses(const std::vector<uint64_t>& 
 				byte |= 0x80;
 			this->_encodedData.append_byte(byte);
 			delta = delta >> 7;
-		} 
+		}
 		while( byte >= 0x80 );
 		addr = nextAddr;
 	}
@@ -1770,12 +1839,20 @@ void SplitSegInfoV1Atom<A>::encode() const
 		this->uleb128EncodeAddresses(_32bitPointerLocations);
 		this->_encodedData.append_byte(0); // terminator
 	}
-	
+
 	if ( _64bitPointerLocations.size() != 0 ) {
 		this->_encodedData.append_byte(2);
 		//fprintf(stderr, "type 2:\n");
 		std::sort(_64bitPointerLocations.begin(), _64bitPointerLocations.end());
 		this->uleb128EncodeAddresses(_64bitPointerLocations);
+		this->_encodedData.append_byte(0); // terminator
+	}
+
+	if ( _ppcHi16Locations.size() != 0 ) {
+		this->_encodedData.append_byte(3);
+		//fprintf(stderr, "type 3:\n");
+		std::sort(_ppcHi16Locations.begin(), _ppcHi16Locations.end());
+		this->uleb128EncodeAddresses(_ppcHi16Locations);
 		this->_encodedData.append_byte(0); // terminator
 	}
 
@@ -1828,12 +1905,13 @@ void SplitSegInfoV1Atom<A>::encode() const
 
 	// align to pointer size
 	this->_encodedData.pad_to_size(sizeof(pint_t));
-	
+
 	this->_encoded = true;
-	
+
 	// clean up temporaries
 	_32bitPointerLocations.clear();
 	_64bitPointerLocations.clear();
+	_ppcHi16Locations.clear();
 }
 
 
@@ -1888,7 +1966,7 @@ void SplitSegInfoV2Atom<A>::encode() const
 
 	// Add marker that this is V2 data
 	this->_encodedData.reserve(8192);
-	this->_encodedData.append_byte(DYLD_CACHE_ADJ_V2_FORMAT); 
+	this->_encodedData.append_byte(DYLD_CACHE_ADJ_V2_FORMAT);
 
 	// stream out
 	// Whole :== <count> FromToSection+
@@ -1932,7 +2010,7 @@ void SplitSegInfoV2Atom<A>::encode() const
 
 	// align to pointer size
 	this->_encodedData.pad_to_size(sizeof(pint_t));
-	
+
 	this->_encoded = true;
 }
 
@@ -1985,7 +2063,7 @@ void FunctionStartsAtom<A>::encode() const
 					continue;
 				uint64_t nextAddr = atom->finalAddress();
 				if ( atom->isThumb() )
-					nextAddr |= 1; 
+					nextAddr |= 1;
 				uint64_t delta = nextAddr - addr;
 				if ( delta != 0 )
 					this->_encodedData.append_uleb128(delta);
@@ -1993,12 +2071,12 @@ void FunctionStartsAtom<A>::encode() const
 			}
 		}
 	}
-	
+
 	// terminator
-	this->_encodedData.append_byte(0); 
-	
+	this->_encodedData.append_byte(0);
+
 	// align to pointer size
-	this->_encodedData.pad_to_size(sizeof(pint_t));		
+	this->_encodedData.pad_to_size(sizeof(pint_t));
 
 	this->_encoded = true;
 }
@@ -2110,7 +2188,7 @@ void DataInCodeAtom<A>::encode() const
 				}
 				// to do: sort labels by address
 				std::sort(dataInCodeLabels.begin(), dataInCodeLabels.end(), FixupByAddressSorter());
-				
+
 				// convert to array of struct data_in_code_entry
 				ld::Fixup::Kind prevKind = ld::Fixup::kindDataInCodeEnd;
 				uint32_t prevOffset = 0;
@@ -2131,7 +2209,7 @@ void DataInCodeAtom<A>::encode() const
 			}
 		}
 	}
-	
+
 	this->_encoded = true;
 }
 
@@ -2145,7 +2223,7 @@ class OptimizationHintsAtom : public LinkEditAtom
 {
 public:
 												OptimizationHintsAtom(const Options& opts, ld::Internal& state, OutputFile& writer)
-													: LinkEditAtom(opts, state, writer, _s_section, sizeof(pint_t)) { 
+													: LinkEditAtom(opts, state, writer, _s_section, sizeof(pint_t)) {
 														assert(opts.outputKind() == Options::kObjectFile);
 													}
 
@@ -2178,7 +2256,7 @@ void OptimizationHintsAtom<A>::encode() const
 				const ld::Atom*	atom = *ait;
 				uint64_t address = atom->finalAddress();
 				for (ld::Fixup::iterator fit = atom->fixupsBegin(); fit != atom->fixupsEnd(); ++fit) {
-					if ( fit->kind != ld::Fixup::kindLinkerOptimizationHint) 
+					if ( fit->kind != ld::Fixup::kindLinkerOptimizationHint)
 						continue;
 					ld::Fixup::LOH_arm64 extra;
 					extra.addend = fit->u.addend;
@@ -2194,10 +2272,10 @@ void OptimizationHintsAtom<A>::encode() const
 				}
 			}
 		}
-			
+
 		this->_encodedData.pad_to_size(sizeof(pint_t));
 	}
-	
+
 	this->_encoded = true;
 }
 
@@ -2301,7 +2379,7 @@ void CodeSignatureAtom::hash(uint8_t* wholeFileBuffer) const
 }
 
 
-} // namespace tool 
-} // namespace ld 
+} // namespace tool
+} // namespace ld
 
 #endif // __LINKEDIT_HPP__

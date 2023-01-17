@@ -572,6 +572,7 @@ public:
 
 };
 
+template <> uint8_t Parser<ppc>::loadCommandSizeMask()		{ return 0x03; }
 template <> uint8_t Parser<x86>::loadCommandSizeMask()		{ return 0x03; }
 template <> uint8_t Parser<x86_64>::loadCommandSizeMask()	{ return 0x07; }
 template <> uint8_t Parser<arm>::loadCommandSizeMask()		{ return 0x03; }
@@ -627,6 +628,33 @@ bool Parser<x86>::validFile(const uint8_t* fileContent, bool executableOrDylibor
 	if ( header->magic() != MH_MAGIC )
 		return false;
 	if ( header->cputype() != CPU_TYPE_I386 )
+		return false;
+	switch ( header->filetype() ) {
+		case MH_DYLIB:
+		case MH_DYLIB_STUB:
+			return true;
+		case MH_BUNDLE:
+			if ( executableOrDyliborBundle )
+				return true;
+			else
+				throw "can't link with bundle (MH_BUNDLE) only dylibs (MH_DYLIB)";
+		case MH_EXECUTE:
+			if ( executableOrDyliborBundle )
+				return true;
+			else
+				throw "can't link with a main executable";
+		default:
+			return false;
+	}
+}
+
+template <>
+bool Parser<ppc>::validFile(const uint8_t* fileContent, bool executableOrDyliborBundle, bool subTypeMustMatch, uint32_t subType)
+{
+	const macho_header<P>* header = (const macho_header<P>*)fileContent;
+	if ( header->magic() != MH_MAGIC )
+		return false;
+	if ( header->cputype() != CPU_TYPE_POWERPC )
 		return false;
 	switch ( header->filetype() ) {
 		case MH_DYLIB:
@@ -937,6 +965,12 @@ static ld::dylib::File* parseAsArchitecture(const uint8_t* fileContent, uint64_t
 		case CPU_TYPE_ARM64_32:
 			if ( Parser<arm64_32>::validFile(fileContent, bundleLoader, subTypeMustMatch, subArchitecture) )
 				return Parser<arm64_32>::parse(fileContent, fileLength, path, modTime, ordinal, opts, indirectDylib, fromSDK);
+			break;
+#endif
+#if SUPPORT_ARCH_ppc
+		case CPU_TYPE_POWERPC:
+			if ( Parser<ppc>::validFile(fileContent, bundleLoader) )
+				return Parser<ppc>::parse(fileContent, fileLength, path, modTime, ordinal, opts, indirectDylib, fromSDK);
 			break;
 #endif
 	}

@@ -98,6 +98,9 @@ private:
 #if SUPPORT_ARCH_arm64_32
 #include "stub_arm64_32.hpp"
 #endif
+#if SUPPORT_ARCH_ppc
+#include "stub_ppc_classic.hpp"
+#endif
 
 Pass::Pass(const Options& opts) 
 	:	compressedHelperHelper(NULL), 
@@ -121,13 +124,16 @@ const ld::Atom* Pass::stubableFixup(const ld::Fixup* fixup, ld::Internal& state)
 	if ( fixup->binding == ld::Fixup::bindingsIndirectlyBound ) {
 		const ld::Atom* target = state.indirectBindingTable[fixup->u.bindingIndex];
 		switch ( fixup->kind ) {
+#if SUPPORT_ARCH_ppc
+			case ld::Fixup::kindStoreTargetAddressPPCBranch24:
+#endif
 			case ld::Fixup::kindStoreTargetAddressX86BranchPCRel32:
 			case ld::Fixup::kindStoreTargetAddressARMBranch24:
 			case ld::Fixup::kindStoreTargetAddressThumbBranch22:
 #if SUPPORT_ARCH_arm64
 			case ld::Fixup::kindStoreTargetAddressARM64Branch26:
 #endif
-                assert(target != NULL);
+				assert(target != NULL);
 				// create stub if target is in a dylib
 				if ( target->definition() == ld::Atom::definitionProxy ) 
 					return target;
@@ -189,6 +195,14 @@ ld::Atom* Pass::makeStub(const ld::Atom& target, bool weakImport)
 	}
 
 	switch ( _architecture ) {
+#if SUPPORT_ARCH_ppc
+		case CPU_TYPE_POWERPC:
+			if ( _pic )
+				return new ld::passes::stubs::ppc::classic::StubPICAtom(*this, target, forLazyDylib, false, weakImport);
+			else
+				return new ld::passes::stubs::ppc::classic::StubNoPICAtom(*this, target, forLazyDylib, false, weakImport);
+			break;
+#endif
 #if SUPPORT_ARCH_i386
 		case CPU_TYPE_I386:
 			if ( usingCompressedLINKEDIT() && !forLazyDylib && _options.noLazyBinding() )
@@ -381,7 +395,9 @@ void Pass::process(ld::Internal& state)
 				if ( _options.outputKind() != Options::kDynamicLibrary ) 
 					throwf("resolver functions (%s) can only be used in dylibs", atom->name());
 				if ( !_options.makeCompressedDyldInfo() && !_options.makeChainedFixups() ) {
-					if ( _options.architecture() == CPU_TYPE_ARM )
+					if ( _options.architecture() == CPU_TYPE_POWERPC )
+						throwf("resolver functions (%s) not supported for PowerPC", atom->name());
+					else if ( _options.architecture() == CPU_TYPE_ARM )
 						throwf("resolver functions (%s) can only be used when targeting iOS 4.2 or later", atom->name());
 					else
 						throwf("resolver functions (%s) can only be used when targeting Mac OS X 10.6 or later", atom->name());

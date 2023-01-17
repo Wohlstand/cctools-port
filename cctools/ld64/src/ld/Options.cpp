@@ -1970,7 +1970,10 @@ void Options::parseOrderFile(const char* path, bool cstring)
 				}
 				// if there is an architecture prefix, only use this symbol it if matches current arch
 				if ( strncmp(symbolStart, "ppc:", 4) == 0 ) {
-					symbolStart = NULL;
+					if ( fArchitecture == CPU_TYPE_POWERPC )
+						symbolStart = &symbolStart[4];
+					else
+						symbolStart = NULL;
 				}
 				else if ( strncmp(symbolStart, "ppc64:", 6) == 0 ) {
 					symbolStart = NULL;
@@ -4815,6 +4818,7 @@ void Options::reconfigureDefaults()
 				fKextsUseStubs = !fAllowTextRelocs;
 				fUndefinedTreatment = kUndefinedDynamicLookup;
 				break;
+			case CPU_TYPE_POWERPC:
 			case CPU_TYPE_I386:
 				// use .o files
 				fOutputKind = kObjectFile;
@@ -4829,6 +4833,7 @@ void Options::reconfigureDefaults()
 
 	// set too-large size
 	switch ( fArchitecture ) {
+		case CPU_TYPE_POWERPC:
 		case CPU_TYPE_I386:
 			fMaxAddress = 0xFFFFFFFF;
 			break;
@@ -5067,6 +5072,7 @@ void Options::reconfigureDefaults()
 
 	// choose how to process unwind info
 	switch ( fArchitecture ) {
+		case CPU_TYPE_POWERPC:
 		case CPU_TYPE_I386:		
 		case CPU_TYPE_X86_64:		
 		case CPU_TYPE_ARM64:		
@@ -5195,6 +5201,7 @@ void Options::reconfigureDefaults()
 		case CPU_TYPE_X86_64:
 			fEnforceDylibSubtypesMatch = false;
 			break;
+		case CPU_TYPE_POWERPC:
 		case CPU_TYPE_I386:
 #if SUPPORT_ARCH_arm64_32
 		case CPU_TYPE_ARM64_32:

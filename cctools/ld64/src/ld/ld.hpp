@@ -260,10 +260,10 @@ static const VersionSet supportsChainedFixups 	({mac10_16, iOS_14_0, watchOS_7_0
 class Bitcode;
 
 //
-// ld::File 
+// ld::File
 //
 // Abstract base class for all object or library files the linker processes.
-// 
+//
 // forEachAtom() iterates over the Atoms in the order they occur in the file.
 //
 // justInTimeforEachAtom(name) iterates over lazily created Atoms.  For instance if
@@ -282,7 +282,7 @@ public:
 	};
 
 	//
-	// ld::File::Ordinal 
+	// ld::File::Ordinal
 	//
 	// Codifies the rules of ordering input files for symbol precedence. These are:
 	// - Input files listed on the command line are ordered according to their index in the argument list.
@@ -302,14 +302,14 @@ public:
 		// is used to distinguish major ordinal groups: command line, indirect dylib, LTO.
 		// The remaining chunks are used according to the partition (see below).
 		uint64_t	_ordinal;
-		
+
 		Ordinal (uint64_t ordinal) : _ordinal(ordinal) {}
-		
+
 		enum { kArgListPartition=0, kIndirectDylibPartition=1, kLTOPartition = 2, kLinkerOptionPartition = 3, InvalidParition=0xffff };
 		Ordinal(uint16_t partition, uint16_t majorIndex, uint16_t minorIndex, uint16_t counter) {
 			_ordinal = ((uint64_t)partition<<48) | ((uint64_t)majorIndex<<32) | ((uint64_t)minorIndex<<16) | ((uint64_t)counter<<0);
 		}
-		
+
 		const uint16_t	partition() const		{ return (_ordinal>>48)&0xffff; }
 		const uint16_t	majorIndex() const		{ return (_ordinal>>32)&0xffff; }
 		const uint16_t	minorIndex() const		{ return (_ordinal>>16)&0xffff; }
@@ -318,19 +318,19 @@ public:
 		const Ordinal nextMajorIndex()		const { assert(majorIndex() < 0xffff); return Ordinal(_ordinal+((uint64_t)1<<32)); }
 		const Ordinal nextMinorIndex()		const { assert(minorIndex() < 0xffff); return Ordinal(_ordinal+((uint64_t)1<<16)); }
 		const Ordinal nextCounter()		const { assert(counter() < 0xffff); return Ordinal(_ordinal+((uint64_t)1<<0)); }
-		
+
 	public:
 		Ordinal() : _ordinal(0) {};
 
 		static const Ordinal NullOrdinal()		{ return Ordinal((uint64_t)0); }
-		
+
 		const bool validOrdinal() const { return _ordinal != 0; }
-		
+
 		bool operator ==(const Ordinal& rhs) const { return _ordinal == rhs._ordinal; }
 		bool operator !=(const Ordinal& rhs) const {	return _ordinal != rhs._ordinal; }
 		bool operator < (const Ordinal& rhs) const { return _ordinal < rhs._ordinal; }
 		bool operator > (const Ordinal& rhs) const { return _ordinal > rhs._ordinal; }
-		
+
 		// For ordinals derived from the command line args the partition is ArgListPartition
 		// The majorIndex is the arg index that pulls in the file, file list, or archive.
 		// The minorIndex is used for files pulled in by a file list and the value is the index of the file in the file list.
@@ -339,11 +339,11 @@ public:
 		static const Ordinal makeArgOrdinal(uint16_t argIndex) { return Ordinal(kArgListPartition, argIndex, 0, 0); };
 		const Ordinal nextFileListOrdinal() const { return nextMinorIndex(); }
 		const Ordinal archiveOrdinalWithMemberIndex(uint16_t memberIndex) const { return Ordinal(partition(), majorIndex(), minorIndex(), memberIndex); }
-		
+
 		// For indirect libraries the partition is IndirectDylibPartition and the counter is used or order the libraries.
 		static const ld::File::Ordinal indirectDylibBase() { return Ordinal(kIndirectDylibPartition, 0, 0, 0); }
 		const Ordinal nextIndirectDylibOrdinal() const { return nextCounter(); }
-		
+
 		// For the LTO mach-o the partition is LTOPartition. As there is only one LTO file no other fields are needed.
 		static const ld::File::Ordinal LTOOrdinal()			{ return Ordinal(kLTOPartition, 0, 0, 0); }
 
@@ -352,9 +352,9 @@ public:
 		const Ordinal nextLinkerOptionOrdinal() { return nextCounter(); };
 
 	};
-	
+
 	typedef enum { Reloc, Dylib, Archive, Other } Type;
-	
+
 										File(const char* pth, time_t modTime, Ordinal ord, Type type)
 											: _path(pth), _modTime(modTime), _ordinal(ord), _type(type) { }
 	virtual								~File() {}
@@ -395,10 +395,10 @@ inline const char* File::leafName() const {
 
 namespace relocatable {
 	//
-	// ld::relocatable::File 
+	// ld::relocatable::File
 	//
 	// Abstract base class for object files the linker processes.
-	// 
+	//
 	// debugInfo() returns if the object file contains debugger information (stabs or dwarf).
 	//
 	// stabs() lazily creates a vector of Stab objects for each atom
@@ -409,7 +409,7 @@ namespace relocatable {
 	// apply order files.
 	//
 	// optimize() used by libLTO to lazily generate code from llvm bit-code files
-	// 
+	//
 	class File : public ld::File
 	{
 	public:
@@ -452,7 +452,7 @@ namespace relocatable {
 namespace dylib {
 
 	//
-	// ld::dylib::File 
+	// ld::dylib::File
 	//
 	// Abstract base class for dynamic shared libraries read by the linker processes.
 	//
@@ -465,7 +465,7 @@ namespace dylib {
 			virtual				~DylibHandler()	{}
 			virtual File*		findDylib(const char* installPath, const ld::dylib::File* fromDylib, bool speculative) = 0;
 		};
-			
+
 											File(const char* pth, time_t modTime, Ordinal ord)
 												: ld::File(pth, modTime, ord, Dylib), _dylibInstallPath(NULL), _frameworkName(NULL),
 												_dylibTimeStamp(0), _dylibCurrentVersion(0), _dylibCompatibilityVersion(0),
@@ -496,7 +496,7 @@ namespace dylib {
 				bool						willBeUpwardDylib() const		{ return _upward; }
 				void						setWillBeRemoved(bool value)	{ _dead = value; }
 				bool						willRemoved() const				{ return _dead; }
-				
+
 		virtual void						processIndirectLibraries(DylibHandler* handler, bool addImplicitDylibs) = 0;
 		virtual bool						providedExportAtom() const = 0;
 		virtual const char*					parentUmbrella() const = 0;
@@ -534,7 +534,7 @@ namespace dylib {
 
 namespace archive {
 	//
-	// ld::archive::File 
+	// ld::archive::File
 	//
 	// Abstract base class for static libraries read by the linker processes.
 	//
@@ -546,7 +546,7 @@ namespace archive {
 		virtual								~File() {}
 		virtual bool						justInTimeDataOnlyforEachAtom(const char* name, AtomHandler&) const = 0;
 	};
-} // namespace archive 
+} // namespace archive
 
 
 //
@@ -559,7 +559,7 @@ public:
 				typeLiteral4, typeLiteral8, typeLiteral16, typeConstants, typeTempLTO, typeTempAlias,
 				typeCString, typeNonStdCString, typeCStringPointer, typeUTF16Strings, typeCFString, typeObjC1Classes,
 				typeCFI, typeLSDA, typeDtraceDOF, typeUnwindInfo, typeObjCClassRefs, typeObjC2CategoryList, typeObjC2ClassList,
-				typeZeroFill, typeTentativeDefs, typeLazyPointer, typeStub, typeNonLazyPointer, typeDyldInfo, 
+				typeZeroFill, typeTentativeDefs, typeLazyPointer, typeStub, typeNonLazyPointer, typeDyldInfo,
 				typeLazyDylibPointer, typeStubHelper, typeInitializerPointers, typeTerminatorPointers,
 				typeStubClose, typeLazyPointerClose, typeAbsoluteSymbols, typeThreadStarts, typeChainStarts,
 				typeTLVDefs, typeTLVZeroFill, typeTLVInitialValues, typeTLVInitializerPointers, typeTLVPointers,
@@ -573,7 +573,7 @@ public:
 					Section(const Section& sect)
 								: _segmentName(sect.segmentName()), _sectionName(sect.sectionName()),
 								_type(sect.type()), _hidden(sect.isSectionHidden())  {}
-								
+
 	bool			operator==(const Section& rhs) const { return ( (_hidden==rhs._hidden) &&
 														(strcmp(_segmentName, rhs._segmentName)==0) &&
 														(strcmp(_sectionName, rhs._sectionName)==0) ); }
@@ -582,7 +582,7 @@ public:
 	const char*			sectionName() const			{ return _sectionName; }
 	Type				type() const				{ return _type; }
 	bool				isSectionHidden() const		{ return _hidden; }
-	
+
 private:
 	const char*			_segmentName;
 	const char*			_sectionName;
@@ -596,13 +596,13 @@ private:
 // ld::Fixup
 //
 // A Fixup describes how part of an Atom's content must be fixed up.  For instance,
-// an instruction may contain a displacement to another Atom that must be 
-// fixed up by the linker.  
+// an instruction may contain a displacement to another Atom that must be
+// fixed up by the linker.
 //
-// A Fixup my reference another Atom. There are two kinds of references: direct and by-name.  
-// With a direct reference, the target is bound by the File that created it. 
-// For instance a reference to a static would produce a direct reference.  
-// A by-name reference requires the linker to find the target Atom with the 
+// A Fixup my reference another Atom. There are two kinds of references: direct and by-name.
+// With a direct reference, the target is bound by the File that created it.
+// For instance a reference to a static would produce a direct reference.
+// A by-name reference requires the linker to find the target Atom with the
 // required name in order to be bound.
 //
 // For a link to succeed all Fixup must be bound.
@@ -611,13 +611,13 @@ private:
 // Atom holding the reference where the fix-up (relocation) will be applied.
 //
 //
-struct Fixup 
+struct Fixup
 {
 	enum TargetBinding { bindingNone, bindingByNameUnbound, bindingDirectlyBound, bindingByContentBound, bindingsIndirectlyBound };
 	enum Cluster { k1of1, k1of2, k2of2, k1of3, k2of3, k3of3, k1of4, k2of4, k3of4, k4of4, k1of5, k2of5, k3of5, k4of5, k5of5 };
-	enum Kind	{	kindNone, kindNoneFollowOn, 
+	enum Kind	{	kindNone, kindNoneFollowOn,
 					// grouping
-					kindNoneGroupSubordinate, 
+					kindNoneGroupSubordinate,
 					kindNoneGroupSubordinateFDE, kindNoneGroupSubordinateLSDA, kindNoneGroupSubordinatePersonality,
 					// value calculations
 					kindSetTargetAddress,
@@ -638,26 +638,32 @@ struct Fixup
 					kindStoreBigEndian32,
 					kindStoreBigEndian64,
 					// Intel specific store kinds
-					kindStoreX86BranchPCRel8, kindStoreX86BranchPCRel32, 
-					kindStoreX86PCRel8, kindStoreX86PCRel16,  
-					kindStoreX86PCRel32, kindStoreX86PCRel32_1, kindStoreX86PCRel32_2, kindStoreX86PCRel32_4, 
-					kindStoreX86PCRel32GOTLoad, kindStoreX86PCRel32GOTLoadNowLEA, kindStoreX86PCRel32GOT, 
+					kindStoreX86BranchPCRel8, kindStoreX86BranchPCRel32,
+					kindStoreX86PCRel8, kindStoreX86PCRel16,
+					kindStoreX86PCRel32, kindStoreX86PCRel32_1, kindStoreX86PCRel32_2, kindStoreX86PCRel32_4,
+					kindStoreX86PCRel32GOTLoad, kindStoreX86PCRel32GOTLoadNowLEA, kindStoreX86PCRel32GOT,
 					kindStoreX86PCRel32TLVLoad, kindStoreX86PCRel32TLVLoadNowLEA,
 					kindStoreX86Abs32TLVLoad, kindStoreX86Abs32TLVLoadNowLEA,
 					// ARM specific store kinds
-					kindStoreARMBranch24, kindStoreThumbBranch22, 
+					kindStoreARMBranch24, kindStoreThumbBranch22,
 					kindStoreARMLoad12,
-					kindStoreARMLow16, kindStoreARMHigh16, 
-					kindStoreThumbLow16, kindStoreThumbHigh16, 
+					kindStoreARMLow16, kindStoreARMHigh16,
+					kindStoreThumbLow16, kindStoreThumbHigh16,
 #if SUPPORT_ARCH_arm64
 					// ARM64 specific store kinds
-					kindStoreARM64Branch26,  
+					kindStoreARM64Branch26,
 					kindStoreARM64Page21, kindStoreARM64PageOff12,
 					kindStoreARM64GOTLoadPage21, kindStoreARM64GOTLoadPageOff12,
 					kindStoreARM64GOTLeaPage21, kindStoreARM64GOTLeaPageOff12,
 					kindStoreARM64TLVPLoadPage21, kindStoreARM64TLVPLoadPageOff12,
 					kindStoreARM64TLVPLoadNowLeaPage21, kindStoreARM64TLVPLoadNowLeaPageOff12,
 					kindStoreARM64PointerToGOT, kindStoreARM64PCRelToGOT,
+#endif
+#if SUPPORT_ARCH_ppc
+					// PowerPC specific store kinds
+					kindStorePPCBranch24, kindStorePPCBranch14,
+					kindStorePPCPicLow14, kindStorePPCPicLow16, kindStorePPCPicHigh16AddLow,
+					kindStorePPCAbsLow14, kindStorePPCAbsLow16, kindStorePPCAbsHigh16AddLow, kindStorePPCAbsHigh16,
 #endif
 #if SUPPORT_ARCH_arm64_32
 					kindStoreARM64PointerToGOT32,
@@ -668,12 +674,15 @@ struct Fixup
 					kindStoreARMDtraceCallSiteNop, kindStoreARMDtraceIsEnableSiteClear,
 					kindStoreARM64DtraceCallSiteNop, kindStoreARM64DtraceIsEnableSiteClear,
 					kindStoreThumbDtraceCallSiteNop, kindStoreThumbDtraceIsEnableSiteClear,
+#if SUPPORT_ARCH_ppc
+                    kindStorePPCDtraceCallSiteNop, kindStorePPCDtraceIsEnableSiteClear,
+#endif
 					// lazy binding
 					kindLazyTarget, kindSetLazyOffset,
 					// islands
 					kindIslandTarget,
 					// data-in-code markers
-					kindDataInCodeStartData, kindDataInCodeStartJT8, kindDataInCodeStartJT16, 
+					kindDataInCodeStartData, kindDataInCodeStartJT8, kindDataInCodeStartJT16,
 					kindDataInCodeStartJT32, kindDataInCodeStartJTA32, kindDataInCodeEnd,
 					// linker optimization hints
 					kindLinkerOptimizationHint,
@@ -717,6 +726,10 @@ struct Fixup
 					kindStoreTargetAddressLittleEndianAuth64,	// kindSetTargetAddress + kindStoreLittleEndianAuth64
 					kindSetAuthData,
 #endif
+#if SUPPORT_ARCH_ppc
+                    // PowerPC value calculation and store combinations
+                    kindStoreTargetAddressPPCBranch24,		// kindSetTargetAddress + kindStorePPCBranch24
+#endif
 			};
 
 #if SUPPORT_ARCH_arm64e
@@ -752,65 +765,65 @@ struct Fixup
 	bool			contentAddendOnly : 1;
 	bool			contentDetlaToAddendOnly : 1;
 	bool			contentIgnoresAddend : 1;
-	
+
 	typedef Fixup*		iterator;
 
 	Fixup() :
-		offsetInAtom(0), kind(kindNone), clusterSize(k1of1), weakImport(false), 
-		binding(bindingNone),  
+		offsetInAtom(0), kind(kindNone), clusterSize(k1of1), weakImport(false),
+		binding(bindingNone),
 		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false) { u.target = NULL; }
 
 	Fixup(Kind k, Atom* targetAtom) :
-		offsetInAtom(0), kind(k), clusterSize(k1of1), weakImport(false), 
-		binding(Fixup::bindingDirectlyBound),  
-		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false)  
+		offsetInAtom(0), kind(k), clusterSize(k1of1), weakImport(false),
+		binding(Fixup::bindingDirectlyBound),
+		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false)
 			{ assert(targetAtom != NULL); u.target = targetAtom; }
 
 	Fixup(uint32_t off, Cluster c, Kind k) :
-		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false), 
-		binding(Fixup::bindingNone),  
-		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false)  
+		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false),
+		binding(Fixup::bindingNone),
+		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false)
 			{ u.addend = 0; }
 
 	Fixup(uint32_t off, Cluster c, Kind k, bool weakIm, const char* name) :
-		offsetInAtom(off), kind(k), clusterSize(c), weakImport(weakIm), 
-		binding(Fixup::bindingByNameUnbound),  
-		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false) 
+		offsetInAtom(off), kind(k), clusterSize(c), weakImport(weakIm),
+		binding(Fixup::bindingByNameUnbound),
+		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false)
 			{ assert(name != NULL); u.name = name; }
-		
+
 	Fixup(uint32_t off, Cluster c, Kind k, TargetBinding b, const char* name) :
-		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false), binding(b),  
-		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false) 
+		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false), binding(b),
+		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false)
 			{ assert(name != NULL); u.name = name; }
-		
+
 	Fixup(uint32_t off, Cluster c, Kind k, const Atom* targetAtom) :
-		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false), 
-		binding(Fixup::bindingDirectlyBound),  
-		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false) 
+		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false),
+		binding(Fixup::bindingDirectlyBound),
+		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false)
 			{ assert(targetAtom != NULL); u.target = targetAtom; }
-		
+
 	Fixup(uint32_t off, Cluster c, Kind k, TargetBinding b, const Atom* targetAtom) :
-		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false), binding(b),  
-		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false) 
+		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false), binding(b),
+		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false)
 			{ assert(targetAtom != NULL); u.target = targetAtom; }
-		
+
 	Fixup(uint32_t off, Cluster c, Kind k, uint64_t addend) :
-		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false), 
-		binding(Fixup::bindingNone),  
-		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false) 
+		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false),
+		binding(Fixup::bindingNone),
+		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false)
 			{ u.addend = addend; }
-		
+
 #if SUPPORT_ARCH_arm64e
 	Fixup(uint32_t off, Cluster c, Kind k, AuthData authData) :
-		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false), 
-		binding(Fixup::bindingNone),  
-		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false) 
+		offsetInAtom(off), kind(k), clusterSize(c), weakImport(false),
+		binding(Fixup::bindingNone),
+		contentAddendOnly(false), contentDetlaToAddendOnly(false), contentIgnoresAddend(false)
 			{ u.authData = authData; }
 #endif
-			
+
 	Fixup(Kind k, uint32_t lohKind, uint32_t off1, uint32_t off2) :
-		offsetInAtom(off1), kind(k), clusterSize(k1of1),  
-		weakImport(false), binding(Fixup::bindingNone), contentAddendOnly(false), 
+		offsetInAtom(off1), kind(k), clusterSize(k1of1),
+		weakImport(false), binding(Fixup::bindingNone), contentAddendOnly(false),
 		contentDetlaToAddendOnly(false), contentIgnoresAddend(false) {
 			assert(k == kindLinkerOptimizationHint);
 			LOH_arm64 extra;
@@ -819,11 +832,11 @@ struct Fixup
 			extra.info.count = 1;
 			extra.info.delta1 = 0;
 			extra.info.delta2 = (off2 - off1) >> 2;
-			u.addend = extra.addend; 
+			u.addend = extra.addend;
 		}
-			
 
-	bool firstInCluster() const { 
+
+	bool firstInCluster() const {
 		switch (clusterSize) {
 			case k1of1:
 			case k1of2:
@@ -836,8 +849,8 @@ struct Fixup
 		}
 		return false;
 	}
-	
-	bool lastInCluster() const { 
+
+	bool lastInCluster() const {
 		switch (clusterSize) {
 			case k1of1:
 			case k2of2:
@@ -992,7 +1005,7 @@ struct Fixup
 		}
 		return false;
 	}
-	
+
 	union LOH_arm64 {
 		uint64_t	addend;
 		struct {
@@ -1001,10 +1014,10 @@ struct Fixup
 						delta1 : 14,	// 16-bit delta, low 2 bits assumed zero
 						delta2 : 14,
 						delta3 : 14,
-						delta4 : 14;	
+						delta4 : 14;
 		} info;
 	};
-	
+
 };
 
 //
@@ -1049,7 +1062,7 @@ struct Fixup
 //
 // ObjectAddress:
 // For reproducability, the linker lays out atoms in the order they occurred in the source (object) files.
-// The objectAddress() method returns the address of an atom in the object file so that the linker 
+// The objectAddress() method returns the address of an atom in the object file so that the linker
 // can arrange the atoms.
 //
 //
@@ -1059,44 +1072,44 @@ public:
 	enum Scope { scopeTranslationUnit, scopeLinkageUnit, scopeGlobal };
 	enum Definition { definitionRegular, definitionTentative, definitionAbsolute, definitionProxy };
 	enum Combine { combineNever, combineByName, combineByNameAndContent, combineByNameAndReferences };
-	enum ContentType { typeUnclassified, typeZeroFill, typeCString, typeCFI, typeLSDA, typeSectionStart, 
-					typeSectionEnd, typeBranchIsland, typeLazyPointer, typeStub, typeNonLazyPointer, 
+	enum ContentType { typeUnclassified, typeZeroFill, typeCString, typeCFI, typeLSDA, typeSectionStart,
+					typeSectionEnd, typeBranchIsland, typeLazyPointer, typeStub, typeNonLazyPointer,
 					typeLazyDylibPointer, typeStubHelper, typeInitializerPointers, typeTerminatorPointers,
 					typeLTOtemporary, typeResolver,
 					typeTLV, typeTLVZeroFill, typeTLVInitialValue, typeTLVInitializerPointers, typeTLVPointer };
 
 	enum SymbolTableInclusion { symbolTableNotIn, symbolTableNotInFinalLinkedImages, symbolTableIn,
-								symbolTableInAndNeverStrip, symbolTableInAsAbsolute, 
+								symbolTableInAndNeverStrip, symbolTableInAsAbsolute,
 								symbolTableInWithRandomAutoStripLabel };
 	enum WeakImportState { weakImportUnset, weakImportTrue, weakImportFalse };
-	
-	struct Alignment { 
+
+	struct Alignment {
 					Alignment(int p2, int m=0) : powerOf2(p2), modulus(m) {}
 		uint8_t		trailingZeros() const { return (modulus==0) ? powerOf2 : __builtin_ctz(modulus); }
-		uint16_t	powerOf2;  
-		uint16_t	modulus; 
+		uint16_t	powerOf2;
+		uint16_t	modulus;
 	};
 	struct LineInfo {
 		const char* fileName;
 		uint32_t	atomOffset;
 		uint32_t	lineNumber;
-		
+
 		typedef LineInfo* iterator;
 	};
 	struct UnwindInfo {
 		uint32_t	startOffset;
 		uint32_t	unwindInfo;
-		
+
 		typedef UnwindInfo* iterator;
 	};
- 
-											Atom(const Section& sect, Definition d, Combine c, Scope s, ContentType ct, 
+
+											Atom(const Section& sect, Definition d, Combine c, Scope s, ContentType ct,
 												SymbolTableInclusion i, bool dds, bool thumb, bool al, Alignment a, bool cold=false) :
-													_section(&sect), _address(0), _alignmentModulus(a.modulus), 
-													_alignmentPowerOf2(a.powerOf2), _definition(d), _combine(c),   
-													_dontDeadStrip(dds), _thumb(thumb), _alias(al), _autoHide(false), 
+													_section(&sect), _address(0), _alignmentModulus(a.modulus),
+													_alignmentPowerOf2(a.powerOf2), _definition(d), _combine(c),
+													_dontDeadStrip(dds), _thumb(thumb), _alias(al), _autoHide(false),
 													_contentType(ct), _symbolTableInclusion(i),
-													_scope(s), _mode(modeSectionOffset), 
+													_scope(s), _mode(modeSectionOffset),
 													_overridesADylibsWeakDef(false), _coalescedAway(false),
 													_live(false), _dontDeadStripIfRefLive(false), _cold(cold),
 													_machoSection(0), _weakImportState(weakImportUnset)
@@ -1137,7 +1150,7 @@ public:
 	uint8_t									machoSection() const		{ assert(_machoSection != 0); return _machoSection; }
 
 	void									setScope(Scope s)			{ _scope = s; }
-	void									setSymbolTableInclusion(SymbolTableInclusion i)			
+	void									setSymbolTableInclusion(SymbolTableInclusion i)
 																		{ _symbolTableInclusion = i; }
 	void									setCombine(Combine c)		{ _combine = c; }
 	void									setOverridesDylibsWeakDef()	{ _overridesADylibsWeakDef = true; }
@@ -1185,14 +1198,14 @@ public:
 		return false;
 	}
 	virtual void							setFile(const File* f)		{ }
-	
+
 	virtual UnwindInfo::iterator			beginUnwind() const { return NULL; }
 	virtual UnwindInfo::iterator			endUnwind() const	{ return NULL; }
 	virtual LineInfo::iterator				beginLineInfo() const { return NULL; }
 	virtual LineInfo::iterator				endLineInfo() const { return NULL; }
-											
-											void setAttributesFromAtom(const Atom& a) { 
-													_section = a._section; 
+
+											void setAttributesFromAtom(const Atom& a) {
+													_section = a._section;
 													_alignmentModulus = a._alignmentModulus;
 													_alignmentPowerOf2 = a._alignmentPowerOf2;
 													_definition = a._definition;
@@ -1230,7 +1243,7 @@ protected:
 	Definition							_definition : 2;
 	Combine								_combine : 2;
 	bool								_dontDeadStrip : 1;
-	bool								_thumb : 1; 
+	bool								_thumb : 1;
 	bool								_alias : 1;
 	int									_autoHide : 1;
 	ContentType							_contentType : 5;
@@ -1282,7 +1295,7 @@ public:
 										FinalSection(const Section& sect) : Section(sect), address(0),
 												fileOffset(0), size(0), alignment(0),
 												indirectSymTabStartIndex(0), indirectSymTabElementSize(0),
-												relocStart(0), relocCount(0), 
+												relocStart(0), relocCount(0),
 												hasLocalRelocs(false), hasExternalRelocs(false) {}
 		std::vector<const Atom*>		atoms;
 		uint64_t						address;
@@ -1297,8 +1310,8 @@ public:
 		bool							hasLocalRelocs;
 		bool							hasExternalRelocs;
 	};
-	
-	typedef std::map<const ld::Atom*, FinalSection*>	AtomToSection;		
+
+	typedef std::map<const ld::Atom*, FinalSection*>	AtomToSection;
 
 	virtual uint64_t					assignFileOffsets() = 0;
 	virtual void						setSectionSizesAndAlignments() = 0;
@@ -1312,7 +1325,7 @@ public:
 											swiftVersion(0), swiftLanguageVersion(0),
 											cpuSubType(0), minOSVersion(0),
 											objectFileFoundWithNoVersion(false),
-											allObjectFilesScatterable(true), 
+											allObjectFilesScatterable(true),
 											someObjectFileHasDwarf(false), usingHugeSections(false),
 											someObjectFileHasSwift(false), firstSwiftDylibFile(nullptr),
 											hasThreadLocalVariableDefinitions(false),
@@ -1325,7 +1338,7 @@ public:
 	std::vector<ld::dylib::File*>				dylibs;
 	std::vector<std::string>					archivePaths;
 	std::vector<ld::relocatable::File::Stab>	stabs;
-	AtomToSection								atomToSection;		
+	AtomToSection								atomToSection;
 	CStringSet									unprocessedLinkerOptionLibraries;
 	CStringSet									unprocessedLinkerOptionFrameworks;
 	CStringSet									linkerOptionNeededLibraries;
@@ -1375,6 +1388,6 @@ public:
 
 
 
-} // namespace ld 
+} // namespace ld
 
 #endif // __LD_HPP__
