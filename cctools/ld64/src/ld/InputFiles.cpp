@@ -279,7 +279,7 @@ ld::File* InputFiles::makeFile(const Options::FileInfo& info, bool indirectDylib
 				break;
 			}
 		}
-		if ( !sliceFound && _options.allowSubArchitectureMismatches() ) {
+		if ( !sliceFound && (_options.allowSubArchitectureMismatches() || !_options.preferSubArchitecture()) ) {
 			// look for any slice that matches just cpu-type
 			for (uint32_t i=0; i < sliceCount; ++i) {
 				if ( OSSwapBigToHostInt32(archs[i].cputype) == (uint32_t)_options.architecture() ) {
@@ -493,7 +493,9 @@ ld::File* InputFiles::makeFile(const Options::FileInfo& info, bool indirectDylib
 	}
 
 	// error handling
-	if ( ((fat_header*)p)->magic == OSSwapBigToHostInt32(FAT_MAGIC) ) {
+	uint32_t babefeca = OSSwapBigToHostInt32(FAT_MAGIC);
+	uint32_t in_magic = ((fat_header*)p)->magic;
+	if ( in_magic == babefeca ) {
 		throwf("missing required architecture %s in file %s (%u slices)", _options.architectureName(), info.path, sliceCount);
 	}
 	else {

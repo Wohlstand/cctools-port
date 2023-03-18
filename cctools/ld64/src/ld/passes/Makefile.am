@@ -44,4 +44,3 @@ libPasses_la_SOURCES =  \
 	thread_starts.cpp \
 	inits.cpp \
 	objc_constants.cpp
-

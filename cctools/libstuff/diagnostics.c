@@ -129,7 +129,7 @@ void diagnostics_write(void)
 {
     char* buf;
     size_t len;
-    FILE* stream;
+	FILE* stream = NULL;
     int fd;
 
     /*

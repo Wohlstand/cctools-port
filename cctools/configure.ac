@@ -1,9 +1,12 @@
+m4_include(m4/acx.m4)
+
 AC_INIT([cctools], [973.0.1], [t.poechtrager@gmail.com])
 
-AC_CANONICAL_BUILD
-AC_CANONICAL_HOST
-AC_CANONICAL_TARGET
+ACX_NONCANONICAL_BUILD
+ACX_NONCANONICAL_HOST
+ACX_NONCANONICAL_TARGET
 
+AC_CANONICAL_SYSTEM
 AC_ARG_PROGRAM
 
 AM_CONDITIONAL([ISDARWIN], [false])
@@ -500,5 +503,14 @@ AC_CONFIG_FILES([ld64/src/ld/Makefile])
 AC_CONFIG_FILES([ld64/src/ld/parsers/Makefile])
 AC_CONFIG_FILES([ld64/src/ld/passes/Makefile])
 AC_CONFIG_FILES([ld64/src/other/Makefile])
+AC_CONFIG_FILES([ld64-ppc/Makefile])
+AC_CONFIG_FILES([ld64-ppc/doc/man/Makefile])
+AC_CONFIG_FILES([ld64-ppc/src/3rd/Makefile])
+AC_CONFIG_FILES([ld64-ppc/src/3rd/BlocksRuntime/Makefile])
+AC_CONFIG_FILES([ld64-ppc/src/Makefile])
+AC_CONFIG_FILES([ld64-ppc/src/ld/Makefile])
+AC_CONFIG_FILES([ld64-ppc/src/ld/parsers/Makefile])
+AC_CONFIG_FILES([ld64-ppc/src/ld/passes/Makefile])
+AC_CONFIG_FILES([ld64-ppc/src/other/Makefile])
 
 AC_OUTPUT

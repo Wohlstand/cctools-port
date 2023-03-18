@@ -1,4 +1,17 @@
 *.o
 *.lo
+*.cache
+.libs
+*.user
+.dirstamp
+*.la
+
 usage_examples/ios_toolchain/tmp
 usage_examples/ios_toolchain/target
+cctools/ld64-ppc/src/ld/ld
+cctools/ld64-ppc/src/other/ObjectDump
+cctools/ld64-ppc/src/other/dyldinfo
+cctools/ld64-ppc/src/other/machocheck
+cctools/ld64-ppc/src/other/unwinddump
+
+Makefile

@@ -318,6 +318,17 @@ bool UnwindInfoAtom<arm>::encodingMeansUseDwarf(compact_unwind_encoding_t enc)
 	return ((enc & UNWIND_ARM_MODE_MASK) == UNWIND_ARM_MODE_DWARF);
 }
 
+template <>
+bool UnwindInfoAtom<ppc>::encodingMeansUseDwarf(compact_unwind_encoding_t enc)
+{
+	return ((enc & UNWIND_PPC_MODE_MASK) == UNWIND_PPC_MODE_DWARF);
+}
+
+template <>
+bool UnwindInfoAtom<ppc64>::encodingMeansUseDwarf(compact_unwind_encoding_t enc)
+{
+	return ((enc & UNWIND_PPC_MODE_MASK) == UNWIND_PPC_MODE_DWARF);
+}
 
 
 
@@ -440,6 +451,22 @@ void UnwindInfoAtom<x86>::addCompressedAddressOffsetFixup(uint32_t offset, const
 }
 
 template <>
+void UnwindInfoAtom<ppc>::addCompressedAddressOffsetFixup(uint32_t offset, const ld::Atom* func, const ld::Atom* fromFunc)
+{
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of3, ld::Fixup::kindSetTargetAddress, func));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of3, ld::Fixup::kindSubtractTargetAddress, fromFunc));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k3of3, ld::Fixup::kindStoreBigEndianLow24of32));
+}
+
+template <>
+void UnwindInfoAtom<ppc64>::addCompressedAddressOffsetFixup(uint32_t offset, const ld::Atom* func, const ld::Atom* fromFunc)
+{
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of3, ld::Fixup::kindSetTargetAddress, func));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of3, ld::Fixup::kindSubtractTargetAddress, fromFunc));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k3of3, ld::Fixup::kindStoreBigEndianLow24of32));
+}
+
+template <>
 void UnwindInfoAtom<x86_64>::addCompressedAddressOffsetFixup(uint32_t offset, const ld::Atom* func, const ld::Atom* fromFunc)
 {
 	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of3, ld::Fixup::kindSetTargetAddress, func));
@@ -519,6 +546,20 @@ void UnwindInfoAtom<arm>::addCompressedEncodingFixup(uint32_t offset, const ld::
 }
 
 template <>
+void UnwindInfoAtom<ppc>::addCompressedEncodingFixup(uint32_t offset, const ld::Atom* fde)
+{
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of2, ld::Fixup::kindSetTargetSectionOffset, fde));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of2, ld::Fixup::kindStoreBigEndianLow24of32));
+}
+
+template <>
+void UnwindInfoAtom<ppc64>::addCompressedEncodingFixup(uint32_t offset, const ld::Atom* fde)
+{
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of2, ld::Fixup::kindSetTargetSectionOffset, fde));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of2, ld::Fixup::kindStoreBigEndianLow24of32));
+}
+
+template <>
 void UnwindInfoAtom<x86>::addRegularAddressFixup(uint32_t offset, const ld::Atom* func)
 {
 	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of2, ld::Fixup::kindSetTargetImageOffset, func));
@@ -554,6 +595,21 @@ void UnwindInfoAtom<arm>::addRegularAddressFixup(uint32_t offset, const ld::Atom
 	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of2, ld::Fixup::kindSetTargetImageOffset, func));
 	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of2, ld::Fixup::kindStoreLittleEndian32));
 }
+
+template <>
+void UnwindInfoAtom<ppc>::addRegularAddressFixup(uint32_t offset, const ld::Atom* func)
+{
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of2, ld::Fixup::kindSetTargetImageOffset, func));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of2, ld::Fixup::kindStoreBigEndian32));
+}
+
+template <>
+void UnwindInfoAtom<ppc64>::addRegularAddressFixup(uint32_t offset, const ld::Atom* func)
+{
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of2, ld::Fixup::kindSetTargetImageOffset, func));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of2, ld::Fixup::kindStoreBigEndian32));
+}
+
 
 template <>
 void UnwindInfoAtom<x86>::addRegularFDEOffsetFixup(uint32_t offset, const ld::Atom* fde)
@@ -593,6 +649,21 @@ void UnwindInfoAtom<arm>::addRegularFDEOffsetFixup(uint32_t offset, const ld::At
 }
 
 template <>
+void UnwindInfoAtom<ppc>::addRegularFDEOffsetFixup(uint32_t offset, const ld::Atom* fde)
+{
+	_fixups.push_back(ld::Fixup(offset+4, ld::Fixup::k1of2, ld::Fixup::kindSetTargetSectionOffset, fde));
+	_fixups.push_back(ld::Fixup(offset+4, ld::Fixup::k2of2, ld::Fixup::kindStoreBigEndianLow24of32));
+}
+
+template <>
+void UnwindInfoAtom<ppc64>::addRegularFDEOffsetFixup(uint32_t offset, const ld::Atom* fde)
+{
+	_fixups.push_back(ld::Fixup(offset+4, ld::Fixup::k1of2, ld::Fixup::kindSetTargetSectionOffset, fde));
+	_fixups.push_back(ld::Fixup(offset+4, ld::Fixup::k2of2, ld::Fixup::kindStoreBigEndianLow24of32));
+}
+
+
+template <>
 void UnwindInfoAtom<x86>::addImageOffsetFixup(uint32_t offset, const ld::Atom* targ)
 {
 	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of2, ld::Fixup::kindSetTargetImageOffset, targ));
@@ -604,6 +675,20 @@ void UnwindInfoAtom<x86_64>::addImageOffsetFixup(uint32_t offset, const ld::Atom
 {
 	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of2, ld::Fixup::kindSetTargetImageOffset, targ));
 	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of2, ld::Fixup::kindStoreLittleEndian32));
+}
+
+template <>
+void UnwindInfoAtom<ppc>::addImageOffsetFixup(uint32_t offset, const ld::Atom* targ)
+{
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of2, ld::Fixup::kindSetTargetImageOffset, targ));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of2, ld::Fixup::kindStoreBigEndian32));
+}
+
+template <>
+void UnwindInfoAtom<ppc64>::addImageOffsetFixup(uint32_t offset, const ld::Atom* targ)
+{
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of2, ld::Fixup::kindSetTargetImageOffset, targ));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of2, ld::Fixup::kindStoreBigEndian32));
 }
 
 template <>
@@ -671,6 +756,21 @@ void UnwindInfoAtom<arm>::addImageOffsetFixupPlusAddend(uint32_t offset, const l
 	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k3of3, ld::Fixup::kindStoreLittleEndian32));
 }
 
+template <>
+void UnwindInfoAtom<ppc>::addImageOffsetFixupPlusAddend(uint32_t offset, const ld::Atom* targ, uint32_t addend)
+{
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of3, ld::Fixup::kindSetTargetImageOffset, targ));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of3, ld::Fixup::kindAddAddend, addend));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k3of3, ld::Fixup::kindStoreBigEndian32));
+}
+
+template <>
+void UnwindInfoAtom<ppc64>::addImageOffsetFixupPlusAddend(uint32_t offset, const ld::Atom* targ, uint32_t addend)
+{
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k1of3, ld::Fixup::kindSetTargetImageOffset, targ));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k2of3, ld::Fixup::kindAddAddend, addend));
+	_fixups.push_back(ld::Fixup(offset, ld::Fixup::k3of3, ld::Fixup::kindStoreBigEndian32));
+}
 
 
 
@@ -1002,6 +1102,12 @@ static void makeFinalLinkedImageCompactUnwindSection(const Options& opts, ld::In
 				state.addAtom(*new UnwindInfoAtom<arm>(entries, ehFrameSize));
 			break;
 #endif
+		case CPU_TYPE_POWERPC:
+			state.addAtom(*new UnwindInfoAtom<ppc>(entries, ehFrameSize));
+			break;
+		case CPU_TYPE_POWERPC64:
+			state.addAtom(*new UnwindInfoAtom<ppc64>(entries, ehFrameSize));
+			break;
 		default:
 			assert(0 && "no compact unwind for arch");
 	}	
@@ -1046,6 +1152,10 @@ private:
 template <typename A>
 ld::Section CompactUnwindAtom<A>::_s_section("__LD", "__compact_unwind", ld::Section::typeDebug);
 
+template <> ld::Fixup::Kind CompactUnwindAtom<ppc>::_s_pointerKind = ld::Fixup::kindStoreBigEndian32;
+template <> ld::Fixup::Kind CompactUnwindAtom<ppc>::_s_pointerStoreKind = ld::Fixup::kindStoreTargetAddressBigEndian32;
+template <> ld::Fixup::Kind CompactUnwindAtom<ppc64>::_s_pointerKind = ld::Fixup::kindStoreBigEndian64;
+template <> ld::Fixup::Kind CompactUnwindAtom<ppc64>::_s_pointerStoreKind = ld::Fixup::kindStoreTargetAddressBigEndian64;
 template <> ld::Fixup::Kind CompactUnwindAtom<x86>::_s_pointerKind = ld::Fixup::kindStoreLittleEndian32;
 template <> ld::Fixup::Kind CompactUnwindAtom<x86>::_s_pointerStoreKind = ld::Fixup::kindStoreTargetAddressLittleEndian32;
 template <> ld::Fixup::Kind CompactUnwindAtom<x86_64>::_s_pointerKind = ld::Fixup::kindStoreLittleEndian64;
@@ -1069,19 +1179,19 @@ CompactUnwindAtom<A>::CompactUnwindAtom(ld::Internal& state,const ld::Atom* func
 				symbolTableNotIn, false, false, false, ld::Atom::Alignment(log2(sizeof(pint_t)))),
 	_atom(funcAtom), _startOffset(startOffset), _len(len), _compactUnwindInfo(cui)
 {
-	_fixups.push_back(ld::Fixup(macho_compact_unwind_entry<P>::codeStartFieldOffset(), ld::Fixup::k1of3, ld::Fixup::kindSetTargetAddress, funcAtom));
-	_fixups.push_back(ld::Fixup(macho_compact_unwind_entry<P>::codeStartFieldOffset(), ld::Fixup::k2of3, ld::Fixup::kindAddAddend, _startOffset));
-	_fixups.push_back(ld::Fixup(macho_compact_unwind_entry<P>::codeStartFieldOffset(), ld::Fixup::k3of3, _s_pointerKind));
+	_fixups.push_back(ld::Fixup(offsetof(macho_compact_unwind_entry<P>,_codeStart), ld::Fixup::k1of3, ld::Fixup::kindSetTargetAddress, funcAtom));
+	_fixups.push_back(ld::Fixup(offsetof(macho_compact_unwind_entry<P>,_codeStart), ld::Fixup::k2of3, ld::Fixup::kindAddAddend, _startOffset));
+	_fixups.push_back(ld::Fixup(offsetof(macho_compact_unwind_entry<P>,_codeStart), ld::Fixup::k3of3, _s_pointerKind));
 	// see if atom has subordinate personality function or lsda
 	for (ld::Fixup::iterator fit = funcAtom->fixupsBegin(), end=funcAtom->fixupsEnd(); fit != end; ++fit) {
 		switch ( fit->kind ) {
 			case ld::Fixup::kindNoneGroupSubordinatePersonality:
 				assert(fit->binding == ld::Fixup::bindingsIndirectlyBound);
-				_fixups.push_back(ld::Fixup(macho_compact_unwind_entry<P>::personalityFieldOffset(), ld::Fixup::k1of1, _s_pointerStoreKind, state.indirectBindingTable[fit->u.bindingIndex]));
+				_fixups.push_back(ld::Fixup(offsetof(macho_compact_unwind_entry<P>,_personality), ld::Fixup::k1of1, _s_pointerStoreKind, state.indirectBindingTable[fit->u.bindingIndex]));
 				break;
 			case ld::Fixup::kindNoneGroupSubordinateLSDA:
 				assert(fit->binding == ld::Fixup::bindingDirectlyBound);
-				_fixups.push_back(ld::Fixup(macho_compact_unwind_entry<P>::lsdaFieldOffset(), ld::Fixup::k1of1, _s_pointerStoreKind, fit->u.target));
+				_fixups.push_back(ld::Fixup(offsetof(macho_compact_unwind_entry<P>,_lsda), ld::Fixup::k1of1, _s_pointerStoreKind, fit->u.target));
 				break;
 			default:
 				break;
@@ -1128,6 +1238,12 @@ static void makeCompactUnwindAtom(const Options& opts, ld::Internal& state, cons
 #endif
 		case CPU_TYPE_ARM:
 			state.addAtom(*new CompactUnwindAtom<arm>(state, atom, startOffset, endOffset-startOffset, cui));
+			break;
+		case CPU_TYPE_POWERPC:
+			state.addAtom(*new CompactUnwindAtom<ppc>(state, atom, startOffset, endOffset-startOffset, cui));
+			break;
+		case CPU_TYPE_POWERPC64:
+			state.addAtom(*new CompactUnwindAtom<ppc64>(state, atom, startOffset, endOffset-startOffset, cui));
 			break;
 	}
 }

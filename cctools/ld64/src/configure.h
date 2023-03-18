@@ -19,7 +19,9 @@
 #endif
 
 #define LD_PAGE_SIZE 0x1000
+#ifndef CPU_SUBTYPE_X86_ALL
 #define CPU_SUBTYPE_X86_ALL     ((cpu_subtype_t)3)
+#endif
 
 #define SUPPORT_ARCH_ppc 1
 #define SUPPORT_ARCH_armv6 1
@@ -38,7 +40,7 @@
 
 #define SUPPORT_APPLE_TV 1
 
-#define ALL_SUPPORTED_ARCHS  "ppc armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em (tvOS)"
+#define ALL_SUPPORTED_ARCHS  "ppc ppc750 ppc7400 ppc7450 ppc970 armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em (tvOS)"
 
 #define BITCODE_XAR_VERSION "1.0"
 

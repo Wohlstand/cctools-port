@@ -500,6 +500,27 @@ struct dyld_chained_ptr_arm64e_auth_bind24
 
 #define UNWIND_ARM_DWARF_SECTION_OFFSET               0x00FFFFFF
 
+#define UNWIND_PPC_MODE_MASK                          0x0F000000
+#define UNWIND_PPC_MODE_FRAME                         0x01000000
+#define UNWIND_PPC_MODE_FRAME_D                       0x02000000
+#define UNWIND_PPC_MODE_DWARF                         0x04000000
+
+#define  UNWIND_PPC_FRAME_STACK_ADJUST_MASK           0x00C00000
+
+#define UNWIND_PPC_FRAME_FIRST_PUSH_R4                0x00000001
+#define UNWIND_PPC_FRAME_FIRST_PUSH_R5                0x00000002
+#define UNWIND_PPC_FRAME_FIRST_PUSH_R6                0x00000004
+
+#define UNWIND_PPC_FRAME_SECOND_PUSH_R8               0x00000008
+#define UNWIND_PPC_FRAME_SECOND_PUSH_R9               0x00000010
+#define UNWIND_PPC_FRAME_SECOND_PUSH_R10              0x00000020
+#define UNWIND_PPC_FRAME_SECOND_PUSH_R11              0x00000040
+#define UNWIND_PPC_FRAME_SECOND_PUSH_R12              0x00000080
+
+#define UNWIND_PPC_FRAME_D_REG_COUNT_MASK             0x00000F00
+
+#define UNWIND_PPC_DWARF_SECTION_OFFSET               0x00FFFFFF
+
 
 // ( <opcode> (delta-uleb128)+ <zero> )+ <zero>
 #define DYLD_CACHE_ADJ_V1_POINTER_32		0x01
@@ -552,6 +573,10 @@ struct ArchInfo {
 static const ArchInfo archInfoArray[] = {
 #if SUPPORT_ARCH_ppc
 	{ "ppc", CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_ALL, "power-",  "", false, false },
+	{ "ppc750", CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_750, "power750-",  "750-", true, false },
+	{ "ppc7400", CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_7400, "power7400-",  "7400-", true, false },
+	{ "ppc7450", CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_7450, "power7450-",  "7450-", true, false },
+	{ "ppc970", CPU_TYPE_POWERPC, CPU_SUBTYPE_POWERPC_970, "power970-",  "970-", true, false },
 #endif
 #if SUPPORT_ARCH_x86_64
 	{ "x86_64", CPU_TYPE_X86_64, CPU_SUBTYPE_X86_64_ALL, "x86_64-",  "", true, false },
@@ -1773,11 +1798,10 @@ public:
 	pint_t			lsda() const							INLINE { return P::getP(_lsda); }
 	void			set_lsda(pint_t value)					INLINE { P::setP(_lsda, value);  }
 
-	static uint32_t	codeStartFieldOffset()					INLINE { return offsetof(macho_compact_unwind_entry<P>,_codeStart); }
-	static uint32_t	personalityFieldOffset()				INLINE { return offsetof(macho_compact_unwind_entry<P>,_personality); }
-	static uint32_t	lsdaFieldOffset()						INLINE { return offsetof(macho_compact_unwind_entry<P>,_lsda); }
+	uint32_t		codeStartFieldOffset()					INLINE { return offsetof(macho_compact_unwind_entry<P>,_codeStart); }
+	uint32_t		personalityFieldOffset()				INLINE { return offsetof(macho_compact_unwind_entry<P>,_personality); }
+	uint32_t		lsdaFieldOffset()						INLINE { return offsetof(macho_compact_unwind_entry<P>,_lsda); }
 
-private:
 	pint_t		_codeStart;
 	uint32_t	_codeLen;
 	uint32_t	_compactUnwindInfo;

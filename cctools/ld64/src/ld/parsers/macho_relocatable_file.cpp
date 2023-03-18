@@ -1,16 +1,16 @@
-/* -*- mode: C++; c-basic-offset: 4; tab-width: 4 -*- 
+/* -*- mode: C++; c-basic-offset: 4; tab-width: 4 -*-
  *
  * Copyright (c) 2009-2010 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
- * 
+ *
  * This file contains Original Code and/or Modifications of Original Code
  * as defined in and that are subject to the Apple Public Source License
  * Version 2.0 (the 'License'). You may not use this file except in
  * compliance with the License. Please obtain a copy of the License at
  * http://www.opensource.apple.com/apsl/ and read it before using this
  * file.
- * 
+ *
  * The Original Code and all software distributed under the License are
  * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
  * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
@@ -18,10 +18,10 @@
  * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
  * Please see the License for the specific language governing rights and
  * limitations under the License.
- * 
+ *
  * @APPLE_LICENSE_HEADER_END@
  */
- 
+
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -78,9 +78,9 @@ public:
 												_sectionsArray(NULL), _atomsArray(NULL),
 												_sectionsArrayCount(0), _atomsArrayCount(0), _aliasAtomsArrayCount(0),
 												_debugInfoKind(ld::relocatable::File::kDebugInfoNone),
-												_dwarfTranslationUnitPath(NULL), 
-												_dwarfDebugInfoSect(NULL), _dwarfDebugAbbrevSect(NULL), 
-												_dwarfDebugLineSect(NULL), _dwarfDebugStringSect(NULL), 
+												_dwarfTranslationUnitPath(NULL),
+												_dwarfDebugInfoSect(NULL), _dwarfDebugAbbrevSect(NULL),
+												_dwarfDebugLineSect(NULL), _dwarfDebugStringSect(NULL),
 												_hasObjC(false),
 												_swiftVersion(0),
 												_swiftLanguageVersion(0),
@@ -98,9 +98,9 @@ public:
 																					{ return false; }
 	virtual const ld::VersionSet&						platforms()	const			{ return _platforms; }
 
-	// overrides of ld::relocatable::File 
+	// overrides of ld::relocatable::File
 	virtual bool										hasObjC() const					{ return _hasObjC; }
-	virtual bool										objcHasCategoryClassPropertiesField() const 
+	virtual bool										objcHasCategoryClassPropertiesField() const
     																					{ return _objcHasCategoryClassPropertiesField; }
 	virtual uint32_t									cpuSubType() const				{ return _cpuSubType; }
 	virtual uint8_t										cpuSubTypeFlags() const			{ return _cpuSubTypeFlags; }
@@ -115,7 +115,7 @@ public:
 	virtual uint16_t									swiftLanguageVersion() const	{ return _swiftLanguageVersion; }
 	virtual ld::Bitcode*								getBitcode() const				{ return _bitcode.get(); }
 	virtual SourceKind									sourceKind() const				{ return _srcKind; }
-	
+
 	virtual const uint8_t*								fileContent() const				{ return _fileContent; }
 	virtual const std::vector<AstTimeAndPath>*			astFiles() const 				{ return &_astFiles; }
 
@@ -127,7 +127,7 @@ private:
 	friend class CFISection<A>::OAS;
 
 	typedef typename A::P					P;
-	
+
 	const uint8_t*							_fileContent;
 	Section<A>**							_sectionsArray;
 	uint8_t*								_atomsArray;
@@ -182,26 +182,26 @@ public:
 	virtual bool					dontDeadStripIfReferencesLive() { return ( (this->_machOSection != NULL) && (this->_machOSection->flags() & S_ATTR_LIVE_SUPPORT) );  }
 	virtual	Atom<A>*				findAtomByAddress(pint_t addr) { return this->findContentAtomByAddress(addr, this->_beginAtoms, this->_endAtoms); }
 	virtual bool					addFollowOnFixups() const	{ return ! _file.canScatterAtoms(); }
-	virtual uint32_t				appendAtoms(class Parser<A>& parser, uint8_t* buffer, 
-												struct Parser<A>::LabelAndCFIBreakIterator& it, 
+	virtual uint32_t				appendAtoms(class Parser<A>& parser, uint8_t* buffer,
+												struct Parser<A>::LabelAndCFIBreakIterator& it,
 												const struct Parser<A>::CFI_CU_InfoArrays&) = 0;
-	virtual uint32_t				computeAtomCount(class Parser<A>& parser, 
-														struct Parser<A>::LabelAndCFIBreakIterator& it, 
+	virtual uint32_t				computeAtomCount(class Parser<A>& parser,
+														struct Parser<A>::LabelAndCFIBreakIterator& it,
 														const struct Parser<A>::CFI_CU_InfoArrays&) = 0;
 	virtual void					makeFixups(class Parser<A>& parser, const struct Parser<A>::CFI_CU_InfoArrays&);
 	virtual bool					addRelocFixup(class Parser<A>& parser, const macho_relocation_info<P>*);
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const { return 0; }
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const { return false; }
 	virtual	bool					ignoreLabel(const char* label) const { return false; }
 	static const char*				makeSectionName(const macho_section<typename A::P>* s);
 
-protected:	
+protected:
 						Section(File<A>& f, const macho_section<typename A::P>* s)
 							: ld::Section(makeSegmentName(s), makeSectionName(s), sectionType(s)),
 								_file(f), _machOSection(s), _beginAtoms(NULL), _endAtoms(NULL), _hasAliases(false) { }
 						Section(File<A>& f, const char* segName, const char* sectName, ld::Section::Type t, bool hidden=false)
-							: ld::Section(segName, sectName, t, hidden), _file(f), _machOSection(NULL), 
+							: ld::Section(segName, sectName, t, hidden), _file(f), _machOSection(NULL),
 								_beginAtoms(NULL), _endAtoms(NULL), _hasAliases(false) { }
 
 
@@ -214,7 +214,7 @@ protected:
 	static bool						writable(const macho_section<typename A::P>* s);
 	static bool						exectuable(const macho_section<typename A::P>* s);
 	static ld::Section::Type		sectionType(const macho_section<typename A::P>* s);
-	
+
 	File<A>&						_file;
 	const macho_section<P>*			_machOSection;
 	class Atom<A>*					_beginAtoms;
@@ -241,7 +241,7 @@ public:
 
 	///
 	/// ObjectFileAddressSpace is used as a template parameter to UnwindCursor for parsing
-	/// dwarf CFI information in an object file.   
+	/// dwarf CFI information in an object file.
 	///
 	class OAS
 	{
@@ -251,10 +251,10 @@ public:
 			typedef typename A::P::E		E;
 			typedef typename A::P::uint_t	sint_t;
 
-							OAS(CFISection<A>& ehFrameSection, const uint8_t* ehFrameBuffer) : 
+							OAS(CFISection<A>& ehFrameSection, const uint8_t* ehFrameBuffer) :
 								_ehFrameSection(ehFrameSection),
-								_ehFrameContent(ehFrameBuffer), 
-								_ehFrameStartAddr(ehFrameSection.machoSection()->addr()), 
+								_ehFrameContent(ehFrameBuffer),
+								_ehFrameStartAddr(ehFrameSection.machoSection()->addr()),
 								_ehFrameEndAddr(ehFrameSection.machoSection()->addr()+ehFrameSection.machoSection()->size()) {}
 
 			uint8_t			get8(pint_t addr) { return *((uint8_t*)mappedAddress(addr)); }
@@ -267,7 +267,7 @@ public:
 			pint_t			getEncodedP(pint_t& addr, pint_t end, uint8_t encoding);
 	private:
 		const void*			mappedAddress(pint_t addr);
-		
+
 		CFISection<A>&				_ehFrameSection;
 		const uint8_t*				_ehFrameContent;
 		pint_t						_ehFrameStartAddr;
@@ -277,7 +277,7 @@ public:
 
 	typedef typename A::P::uint_t			pint_t;
 	typedef libunwind::CFI_Atom_Info<OAS>	CFI_Atom_Info;
-	
+
 	void				cfiParse(class Parser<A>& parser, uint8_t* buffer, CFI_Atom_Info cfiArray[], uint32_t& cfiCount, const pint_t cuStarts[], uint32_t cuCount);
 	bool				needsRelocating();
 
@@ -298,12 +298,12 @@ public:
 	typedef typename A::P::uint_t	pint_t;
 	typedef typename A::P			P;
 	typedef typename A::P::E		E;
-					
+
 	virtual uint32_t		computeAtomCount(class Parser<A>& parser, struct Parser<A>::LabelAndCFIBreakIterator& it, const struct Parser<A>::CFI_CU_InfoArrays&) { return 0; }
 	virtual uint32_t		appendAtoms(class Parser<A>& parser, uint8_t* buffer, struct Parser<A>::LabelAndCFIBreakIterator& it, const struct Parser<A>::CFI_CU_InfoArrays&) { return 0; }
 	virtual void			makeFixups(class Parser<A>& parser, const struct Parser<A>::CFI_CU_InfoArrays&);
 	virtual bool			addFollowOnFixups() const	{ return false; }
-	
+
 	struct Info {
 		pint_t		functionStartAddress;
 		uint32_t	functionSymbolIndex;
@@ -318,10 +318,10 @@ public:
 	uint32_t				count();
 	void					parse(class Parser<A>& parser, uint32_t cnt, Info array[]);
 	static bool				encodingMeansUseDwarf(compact_unwind_encoding_t enc);
-	
-	
+
+
 private:
-	
+
 	const char*				personalityName(class Parser<A>& parser, const macho_relocation_info<P>* reloc);
 
 	static int				infoSorter(const void* l, const void* r);
@@ -339,10 +339,10 @@ public:
 	virtual ld::Atom::ContentType	contentType()		{ return ld::Atom::typeZeroFill; }
 	virtual bool		addFollowOnFixups() const	{ return false; }
 	virtual Atom<A>*	findAtomByAddress(typename A::P::uint_t addr) { throw "TentativeDefinitionSection::findAtomByAddress() should never be called"; }
-	virtual uint32_t	computeAtomCount(class Parser<A>& parser, struct Parser<A>::LabelAndCFIBreakIterator& it, 
+	virtual uint32_t	computeAtomCount(class Parser<A>& parser, struct Parser<A>::LabelAndCFIBreakIterator& it,
 											const struct Parser<A>::CFI_CU_InfoArrays&);
-	virtual uint32_t	appendAtoms(class Parser<A>& parser, uint8_t* buffer, 
-										struct Parser<A>::LabelAndCFIBreakIterator& it, 
+	virtual uint32_t	appendAtoms(class Parser<A>& parser, uint8_t* buffer,
+										struct Parser<A>::LabelAndCFIBreakIterator& it,
 										const struct Parser<A>::CFI_CU_InfoArrays&);
 	virtual void		makeFixups(class Parser<A>& parser, const struct Parser<A>::CFI_CU_InfoArrays&) {}
 private:
@@ -363,14 +363,14 @@ public:
 	virtual ld::Atom::Alignment		alignmentForAddress(typename A::P::uint_t addr) { return ld::Atom::Alignment(0); }
 	virtual bool		addFollowOnFixups() const	{ return false; }
 	virtual Atom<A>*	findAtomByAddress(typename A::P::uint_t addr) { throw "AbsoluteSymbolSection::findAtomByAddress() should never be called"; }
-	virtual uint32_t	computeAtomCount(class Parser<A>& parser, struct Parser<A>::LabelAndCFIBreakIterator& it, 
+	virtual uint32_t	computeAtomCount(class Parser<A>& parser, struct Parser<A>::LabelAndCFIBreakIterator& it,
 											const struct Parser<A>::CFI_CU_InfoArrays&);
-	virtual uint32_t	appendAtoms(class Parser<A>& parser, uint8_t* buffer, 
-										struct Parser<A>::LabelAndCFIBreakIterator& it, 
+	virtual uint32_t	appendAtoms(class Parser<A>& parser, uint8_t* buffer,
+										struct Parser<A>::LabelAndCFIBreakIterator& it,
 										const struct Parser<A>::CFI_CU_InfoArrays&);
 	virtual void		makeFixups(class Parser<A>& parser, const struct Parser<A>::CFI_CU_InfoArrays&) {}
 	virtual Atom<A>*	findAbsAtomForValue(typename A::P::uint_t);
-	
+
 private:
 	typedef typename A::P::uint_t	pint_t;
 	typedef typename A::P			P;
@@ -384,10 +384,10 @@ public:
 						SymboledSection(Parser<A>& parser, File<A>& f, const macho_section<typename A::P>* s);
 	virtual ld::Atom::ContentType	contentType() { return _type; }
 	virtual bool					dontDeadStrip();
-	virtual uint32_t	computeAtomCount(class Parser<A>& parser, struct Parser<A>::LabelAndCFIBreakIterator& it, 
+	virtual uint32_t	computeAtomCount(class Parser<A>& parser, struct Parser<A>::LabelAndCFIBreakIterator& it,
 											const struct Parser<A>::CFI_CU_InfoArrays&);
-	virtual uint32_t	appendAtoms(class Parser<A>& parser, uint8_t* buffer, 
-									struct Parser<A>::LabelAndCFIBreakIterator& it, 
+	virtual uint32_t	appendAtoms(class Parser<A>& parser, uint8_t* buffer,
+									struct Parser<A>::LabelAndCFIBreakIterator& it,
 									const struct Parser<A>::CFI_CU_InfoArrays&);
 protected:
 	typedef typename A::P::uint_t	pint_t;
@@ -424,13 +424,13 @@ public:
 protected:
 	typedef typename A::P::uint_t	pint_t;
 	typedef typename A::P			P;
-	
+
 	virtual bool						addFollowOnFixups() const		{ return false; }
 	virtual const char*					unlabeledAtomName(Parser<A>& parser, pint_t addr) = 0;
 	virtual ld::Atom::SymbolTableInclusion	symbolTableInclusion();
 	virtual	pint_t						elementSizeAtAddress(pint_t addr) = 0;
 	virtual ld::Atom::Scope				scopeAtAddress(Parser<A>& parser, pint_t addr) { return ld::Atom::scopeLinkageUnit; }
-	virtual bool						useElementAt(Parser<A>& parser, 
+	virtual bool						useElementAt(Parser<A>& parser,
 												struct Parser<A>::LabelAndCFIBreakIterator& it, pint_t addr) = 0;
 	virtual ld::Atom::Definition		definition()					{ return ld::Atom::definitionRegular; }
 	virtual ld::Atom::Combine			combine(Parser<A>& parser, pint_t addr) = 0;
@@ -448,9 +448,9 @@ protected:
 	typedef typename A::P::uint_t	pint_t;
 	typedef typename A::P			P;
 	typedef typename A::P::E		E;
-	
-	virtual bool					useElementAt(Parser<A>& parser, 
-										struct Parser<A>::LabelAndCFIBreakIterator& it, pint_t addr) 
+
+	virtual bool					useElementAt(Parser<A>& parser,
+										struct Parser<A>::LabelAndCFIBreakIterator& it, pint_t addr)
 														{ return true; }
 };
 
@@ -470,7 +470,7 @@ protected:
 	virtual	pint_t					elementSizeAtAddress(pint_t addr)		{ return 4; }
 	virtual ld::Atom::Combine		combine(Parser<A>&, pint_t)				{ return ld::Atom::combineByNameAndContent; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const;
 	virtual	bool					ignoreLabel(const char* label) const;
 };
@@ -490,7 +490,7 @@ protected:
 	virtual	pint_t					elementSizeAtAddress(pint_t addr)		{ return 8; }
 	virtual ld::Atom::Combine		combine(Parser<A>&, pint_t)				{ return ld::Atom::combineByNameAndContent; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const;
 	virtual	bool					ignoreLabel(const char* label) const;
 };
@@ -510,7 +510,7 @@ protected:
 	virtual	pint_t					elementSizeAtAddress(pint_t addr)		{ return 16; }
 	virtual ld::Atom::Combine		combine(Parser<A>&, pint_t)				{ return ld::Atom::combineByNameAndContent; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const;
 	virtual	bool					ignoreLabel(const char* label) const;
 };
@@ -535,7 +535,7 @@ protected:
 	virtual ld::Atom::Combine		combine(Parser<A>&, pint_t);
 	virtual	bool					ignoreLabel(const char* label) const 	{ return true; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const;
 
 private:
@@ -561,7 +561,7 @@ protected:
 	virtual ld::Atom::Combine		combine(Parser<A>&, pint_t);
 	virtual	bool					ignoreLabel(const char* label) const 	{ return true; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const;
 
 private:
@@ -584,7 +584,7 @@ protected:
 	virtual ld::Atom::Combine		combine(Parser<A>&, pint_t)				{ return ld::Atom::combineByNameAndReferences; }
 	virtual	bool					ignoreLabel(const char* label) const	{ return true; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const;
 private:
 	enum ContentType { contentUTF8, contentUTF16, contentUnknown };
@@ -613,7 +613,7 @@ protected:
 	virtual	bool					ignoreLabel(const char* label) const	{ return true; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const
 																			{ return 0; }
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const { return false; }
 	virtual bool					addRelocFixup(class Parser<A>& parser, const macho_relocation_info<P>*);
 };
@@ -634,7 +634,7 @@ protected:
 	virtual ld::Atom::Combine		combine(Parser<A>&, pint_t)				{ return ld::Atom::combineByNameAndReferences; }
 	virtual	bool					ignoreLabel(const char* label) const	{ return true; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const;
 private:
 	const char*						targetClassName(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
@@ -676,7 +676,7 @@ protected:
 	virtual ld::Atom::Combine		combine(Parser<A>&, pint_t)				{ return ld::Atom::combineByNameAndReferences; }
 	virtual	bool					ignoreLabel(const char* label) const	{ return true; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const;
 	virtual const char*				targetCString(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
 };
@@ -713,11 +713,11 @@ protected:
 	virtual const char*				unlabeledAtomName(Parser<A>&, pint_t)	{ return "cstring"; }
 	virtual	pint_t					elementSizeAtAddress(pint_t addr);
 	virtual	bool					ignoreLabel(const char* label) const;
-	virtual bool					useElementAt(Parser<A>& parser, 
+	virtual bool					useElementAt(Parser<A>& parser,
 												struct Parser<A>::LabelAndCFIBreakIterator& it, pint_t addr);
 	virtual ld::Atom::Combine		combine(Parser<A>&, pint_t)				{ return ld::Atom::combineByNameAndContent; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const;
 
 };
@@ -735,7 +735,7 @@ protected:
 
 	virtual ld::Atom::Combine		combine(Parser<A>&, pint_t)				{ return ld::Atom::combineByNameAndContent; }
 	virtual unsigned long			contentHash(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) const;
-	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+	virtual bool					canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const;
 };
 
@@ -756,9 +756,9 @@ public:
 	virtual uint64_t							objectAddress() const { return _objAddress; }
 	virtual void								copyRawContent(uint8_t buffer[]) const;
 	virtual const uint8_t*						rawContentPointer() const { return contentPointer(); }
-	virtual unsigned long						contentHash(const ld::IndirectBindingTable& ind) const 
+	virtual unsigned long						contentHash(const ld::IndirectBindingTable& ind) const
 															{ if ( _hash == 0 ) _hash = sect().contentHash(this, ind); return _hash; }
-	virtual bool								canCoalesceWith(const ld::Atom& rhs, const ld::IndirectBindingTable& ind) const 
+	virtual bool								canCoalesceWith(const ld::Atom& rhs, const ld::IndirectBindingTable& ind) const
 															{ return sect().canCoalesceWith(this, rhs, ind); }
 	virtual ld::Fixup::iterator					fixupsBegin() const	{ return &machofile()._fixups[_fixupsStartIndex]; }
 	virtual ld::Fixup::iterator					fixupsEnd()	const	{ return &machofile()._fixups[_fixupsStartIndex+_fixupsCount]; }
@@ -771,9 +771,9 @@ public:
 private:
 
 	enum {	kFixupStartIndexBits = 32,
-			kLineInfoStartIndexBits = 32, 
+			kLineInfoStartIndexBits = 32,
 			kUnwindInfoStartIndexBits = 24,
-			kFixupCountBits = 24, 
+			kFixupCountBits = 24,
 			kLineInfoCountBits = 12,
 			kUnwindInfoCountBits = 4
 		}; // must sum to 128
@@ -792,38 +792,38 @@ public:
 			const uint8_t*						contentPointer() const;
 			uint32_t							fixupCount() const { return _fixupsCount; }
 			void								verifyAlignment(const macho_section<typename A::P>&) const;
-	
+
 	typedef typename A::P						P;
 	typedef typename A::P::E					E;
 	typedef typename A::P::uint_t				pint_t;
 												// constuct via all attributes
-												Atom(Section<A>& sct, const char* nm, pint_t addr, uint64_t sz, 
-													ld::Atom::Definition d, ld::Atom::Combine c, ld::Atom::Scope s, 
-													ld::Atom::ContentType ct, ld::Atom::SymbolTableInclusion i, 
-													bool dds, bool thumb, bool al, ld::Atom::Alignment a) 
-														: ld::Atom((ld::Section&)sct, d, c, s, ct, i, dds, thumb, al, a), 
-															_size(sz), _objAddress(addr), _name(nm), _hash(0), 
+												Atom(Section<A>& sct, const char* nm, pint_t addr, uint64_t sz,
+													ld::Atom::Definition d, ld::Atom::Combine c, ld::Atom::Scope s,
+													ld::Atom::ContentType ct, ld::Atom::SymbolTableInclusion i,
+													bool dds, bool thumb, bool al, ld::Atom::Alignment a)
+														: ld::Atom((ld::Section&)sct, d, c, s, ct, i, dds, thumb, al, a),
+															_size(sz), _objAddress(addr), _name(nm), _hash(0),
 															_fixupsStartIndex(0), _lineInfoStartIndex(0),
-															_unwindInfoStartIndex(0), _fixupsCount(0),  
+															_unwindInfoStartIndex(0), _fixupsCount(0),
 															_lineInfoCount(0), _unwindInfoCount(0) { }
 												// construct via symbol table entry
-												Atom(Section<A>& sct, Parser<A>& parser, const macho_nlist<P>& sym, 
+												Atom(Section<A>& sct, Parser<A>& parser, const macho_nlist<P>& sym,
 																uint64_t sz, bool alias=false)
-														: ld::Atom((ld::Section&)sct, parser.definitionFromSymbol(sym), 
+														: ld::Atom((ld::Section&)sct, parser.definitionFromSymbol(sym),
 																parser.combineFromSymbol(sym), parser.scopeFromSymbol(sym),
-																parser.resolverFromSymbol(sym) ? ld::Atom::typeResolver : sct.contentType(), 
-																parser.inclusionFromSymbol(sym), 
+																parser.resolverFromSymbol(sym) ? ld::Atom::typeResolver : sct.contentType(),
+																parser.inclusionFromSymbol(sym),
 																(parser.dontDeadStripFromSymbol(sym) && !sct.dontDeadStripIfReferencesLive()) || sct.dontDeadStrip(),
-																parser.isThumbFromSymbol(sym), alias, 
+																parser.isThumbFromSymbol(sym), alias,
 																sct.alignmentForAddress(sym.n_value()),
 																parser.coldFromSymbol(sym)),
-															_size(sz), _objAddress(sym.n_value()), 
-															_name(parser.nameFromSymbol(sym)), _hash(0), 
+															_size(sz), _objAddress(sym.n_value()),
+															_name(parser.nameFromSymbol(sym)), _hash(0),
 															_fixupsStartIndex(0), _lineInfoStartIndex(0),
-															_unwindInfoStartIndex(0), _fixupsCount(0),  
-															_lineInfoCount(0), _unwindInfoCount(0) { 
+															_unwindInfoStartIndex(0), _fixupsCount(0),
+															_lineInfoCount(0), _unwindInfoCount(0) {
 																// <rdar://problem/6783167> support auto-hidden weak symbols
-																if ( _scope == ld::Atom::scopeGlobal && 
+																if ( _scope == ld::Atom::scopeGlobal &&
 																		(sym.n_desc() & (N_WEAK_DEF|N_WEAK_REF)) == (N_WEAK_DEF|N_WEAK_REF) )
 																	this->setAutoHide();
 																this->verifyAlignment(*sct.machoSection());
@@ -836,19 +836,19 @@ private:
 	friend class Section<A>;
 	friend class CStringSection<A>;
 	friend class AbsoluteSymbolSection<A>;
-	
+
 	pint_t										_size;
 	pint_t										_objAddress;
 	const char*									_name;
 	mutable unsigned long						_hash;
 
 	uint64_t									_fixupsStartIndex		: kFixupStartIndexBits,
-												_lineInfoStartIndex		: kLineInfoStartIndexBits,			
+												_lineInfoStartIndex		: kLineInfoStartIndexBits,
 												_unwindInfoStartIndex	: kUnwindInfoStartIndexBits,
 												_fixupsCount			: kFixupCountBits,
 												_lineInfoCount			: kLineInfoCountBits,
 												_unwindInfoCount		: kUnwindInfoCountBits;
-												
+
 	static std::map<const ld::Atom*, const ld::File*> _s_fileOverride;
 };
 
@@ -866,49 +866,49 @@ const ld::File* Atom<A>::file() const
 	std::map<const ld::Atom*, const ld::File*>::iterator pos = _s_fileOverride.find(this);
 	if ( pos != _s_fileOverride.end() )
 		return pos->second;
-		
+
 	return &sect().file();
 }
 
 template <typename A>
 void Atom<A>::setFixupsRange(uint32_t startIndex, uint32_t count)
-{ 
-	if ( count >= (1 << kFixupCountBits) ) 
+{
+	if ( count >= (1 << kFixupCountBits) )
 		throwf("too many fixups in function %s", this->name());
-	if ( startIndex >= (1 << kFixupStartIndexBits) ) 
+	if ( startIndex >= (1 << kFixupStartIndexBits) )
 		throwf("too many fixups in file");
 	assert(((startIndex+count) <= sect().file()._fixups.size()) && "fixup index out of range");
-	_fixupsStartIndex = startIndex; 
-	_fixupsCount = count; 
+	_fixupsStartIndex = startIndex;
+	_fixupsCount = count;
 }
 
 template <typename A>
 void Atom<A>::setUnwindInfoRange(uint32_t startIndex, uint32_t count)
 {
-	if ( count >= (1 << kUnwindInfoCountBits) ) 
+	if ( count >= (1 << kUnwindInfoCountBits) )
 		throwf("too many compact unwind infos in function %s", this->name());
-	if ( startIndex >= (1 << kUnwindInfoStartIndexBits) ) 
+	if ( startIndex >= (1 << kUnwindInfoStartIndexBits) )
 		throwf("too many compact unwind infos (%d) in file", startIndex);
 	assert((startIndex+count) <= sect().file()._unwindInfos.size() && "unwindinfo index out of range");
-	_unwindInfoStartIndex = startIndex; 
-	_unwindInfoCount = count; 
+	_unwindInfoStartIndex = startIndex;
+	_unwindInfoCount = count;
 }
 
 template <typename A>
 void Atom<A>::extendUnwindInfoRange()
 {
-	if ( _unwindInfoCount+1 >= (1 << kUnwindInfoCountBits) ) 
+	if ( _unwindInfoCount+1 >= (1 << kUnwindInfoCountBits) )
 		throwf("too many compact unwind infos in function %s", this->name());
 	_unwindInfoCount += 1;
 }
 
 template <typename A>
 void Atom<A>::setLineInfoRange(uint32_t startIndex, uint32_t count)
-{ 
+{
 	assert((count < (1 << kLineInfoCountBits)) && "too many line infos");
 	assert((startIndex+count) < sect().file()._lineInfos.size() && "line info index out of range");
-	_lineInfoStartIndex = startIndex; 
-	_lineInfoCount = count; 
+	_lineInfoStartIndex = startIndex;
+	_lineInfoCount = count;
 }
 
 template <typename A>
@@ -974,13 +974,13 @@ void Atom<A>::verifyAlignment(const macho_section<P>&) const
 class AliasAtom : public ld::Atom
 {
 public:
-										AliasAtom(const char* name, bool hidden, const ld::File* file, const char* aliasOfName) : 
+										AliasAtom(const char* name, bool hidden, const ld::File* file, const char* aliasOfName) :
 											ld::Atom(_s_section, ld::Atom::definitionRegular, ld::Atom::combineNever,
-													(hidden ? ld::Atom::scopeLinkageUnit : ld::Atom::scopeGlobal), 
-													ld::Atom::typeUnclassified, ld::Atom::symbolTableIn, 
+													(hidden ? ld::Atom::scopeLinkageUnit : ld::Atom::scopeGlobal),
+													ld::Atom::typeUnclassified, ld::Atom::symbolTableIn,
 													false, false, true, 0),
 											_file(file),
-											_name(name), 
+											_name(name),
 											_fixup(0, ld::Fixup::k1of1, ld::Fixup::kindNoneFollowOn, ld::Fixup::bindingByNameUnbound, aliasOfName) { }
 
 	virtual const ld::File*				file() const		{ return _file; }
@@ -1005,20 +1005,20 @@ ld::Section AliasAtom::_s_section("__LD", "__aliases", ld::Section::typeTempAlia
 
 
 template <typename A>
-class Parser 
+class Parser
 {
 public:
-	static bool										validFile(const uint8_t* fileContent, bool subtypeMustMatch=false, 
+	static bool										validFile(const uint8_t* fileContent, bool subtypeMustMatch=false,
 																cpu_subtype_t subtype=0);
 	static const char*								fileKind(const uint8_t* fileContent);
 	static void										findPlatforms(const macho_header<typename A::P>* header,  uint64_t fileLength, ld::VersionSet& platformsFound);
 	static bool										hasObjC2Categories(const uint8_t* fileContent);
 	static bool										hasObjC1Categories(const uint8_t* fileContent);
 	static bool										getNonLocalSymbols(const uint8_t* fileContnet, std::vector<const char*> &syms);
-	static ld::relocatable::File*					parse(const uint8_t* fileContent, uint64_t fileLength, 
+	static ld::relocatable::File*					parse(const uint8_t* fileContent, uint64_t fileLength,
 															const char* path, time_t modTime, ld::File::Ordinal ordinal,
 															 const ParserOptions& opts) {
-																Parser p(fileContent, fileLength, path, modTime, 
+																Parser p(fileContent, fileLength, path, modTime,
 																		ordinal, opts.warnUnwindConversionProblems,
 																		opts.keepDwarfUnwind, opts.forceDwarfConversion,
 																		opts.neverConvertDwarf, opts.verboseOptimizationHints);
@@ -1037,7 +1037,7 @@ public:
 	};
 
 	struct TargetDesc {
-		Atom<A>*	atom;		
+		Atom<A>*	atom;
 		const char*	name;		// only used if targetAtom is NULL
 		int64_t		addend;
 		bool		weakImport;	// only used if targetAtom is NULL
@@ -1049,16 +1049,16 @@ public:
 	struct FixupInAtom {
 		FixupInAtom(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, Atom<A>* target) :
 			fixup(src.offsetInAtom, c, k, target), atom(src.atom) { src.atom->incrementFixupCount(); }
-			
+
 		FixupInAtom(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, ld::Fixup::TargetBinding b, Atom<A>* target) :
 			fixup(src.offsetInAtom, c, k, b, target), atom(src.atom) { src.atom->incrementFixupCount(); }
-			
+
 		FixupInAtom(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, bool wi, const char* name) :
 			fixup(src.offsetInAtom, c, k, wi, name), atom(src.atom) { src.atom->incrementFixupCount(); }
-					
+
 		FixupInAtom(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, ld::Fixup::TargetBinding b, const char* name) :
 			fixup(src.offsetInAtom, c, k, b, name), atom(src.atom) { src.atom->incrementFixupCount(); }
-					
+
 		FixupInAtom(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, uint64_t addend) :
 			fixup(src.offsetInAtom, c, k, addend), atom(src.atom) { src.atom->incrementFixupCount(); }
 
@@ -1074,24 +1074,24 @@ public:
 		Atom<A>*		atom;
 	};
 
-	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, Atom<A>* target) { 
-		_allFixups.push_back(FixupInAtom(src, c, k, target)); 
+	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, Atom<A>* target) {
+		_allFixups.push_back(FixupInAtom(src, c, k, target));
 	}
-	
-	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, ld::Fixup::TargetBinding b, Atom<A>* target) { 
-		_allFixups.push_back(FixupInAtom(src, c, k, b, target)); 
+
+	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, ld::Fixup::TargetBinding b, Atom<A>* target) {
+		_allFixups.push_back(FixupInAtom(src, c, k, b, target));
 	}
-	
-	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, bool wi, const char* name) { 
-		_allFixups.push_back(FixupInAtom(src, c, k, wi, name)); 
+
+	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, bool wi, const char* name) {
+		_allFixups.push_back(FixupInAtom(src, c, k, wi, name));
 	}
-	
-	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, ld::Fixup::TargetBinding b, const char* name) { 
-		_allFixups.push_back(FixupInAtom(src, c, k, b, name)); 
+
+	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, ld::Fixup::TargetBinding b, const char* name) {
+		_allFixups.push_back(FixupInAtom(src, c, k, b, name));
 	}
-	
-	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, uint64_t addend) { 
-		_allFixups.push_back(FixupInAtom(src, c, k, addend)); 
+
+	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k, uint64_t addend) {
+		_allFixups.push_back(FixupInAtom(src, c, k, addend));
 	}
 
 #if SUPPORT_ARCH_arm64e
@@ -1100,8 +1100,8 @@ public:
 	}
 #endif
 
-	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k) { 
-		_allFixups.push_back(FixupInAtom(src, c, k)); 
+	void addFixup(const SourceLocation& src, ld::Fixup::Cluster c, ld::Fixup::Kind k) {
+		_allFixups.push_back(FixupInAtom(src, c, k));
 	}
 
 	const char*										path() { return _path; }
@@ -1160,24 +1160,24 @@ public:
 	const uint8_t*									optimizationHintsEnd() { return _lohEnd; }
 	bool											hasOptimizationHints() { return _lohStart != _lohEnd; }
 
-	
+
 	void							addFixups(const SourceLocation& src, ld::Fixup::Kind kind, const TargetDesc& target);
 	void							addFixups(const SourceLocation& src, ld::Fixup::Kind kind, const TargetDesc& target, const TargetDesc& picBase);
-	
+
 
 
 	struct LabelAndCFIBreakIterator {
 		typedef typename CFISection<A>::CFI_Atom_Info CFI_Atom_Info;
-								LabelAndCFIBreakIterator(const uint32_t* ssa, uint32_t ssc, const pint_t* cfisa, 
+								LabelAndCFIBreakIterator(const uint32_t* ssa, uint32_t ssc, const pint_t* cfisa,
 														uint32_t cfisc, bool ols)
-									: sortedSymbolIndexes(ssa), sortedSymbolCount(ssc), cfiStartsArray(cfisa), 
+									: sortedSymbolIndexes(ssa), sortedSymbolCount(ssc), cfiStartsArray(cfisa),
 										cfiStartsCount(cfisc), fileHasOverlappingSymbols(ols),
 										newSection(false), cfiIndex(0), symIndex(0) {}
-		bool					next(Parser<A>& parser, const Section<A>& sect, uint32_t sectNum, pint_t startAddr, pint_t endAddr, 
+		bool					next(Parser<A>& parser, const Section<A>& sect, uint32_t sectNum, pint_t startAddr, pint_t endAddr,
 										pint_t* addr, pint_t* size, const macho_nlist<P>** sym);
 		pint_t					peek(Parser<A>& parser, pint_t startAddr, pint_t endAddr);
 		void					beginSection() { newSection = true; symIndex = 0; }
-		
+
 		const uint32_t* const		sortedSymbolIndexes;
 		const uint32_t				sortedSymbolCount;
 		const pint_t*				cfiStartsArray;
@@ -1191,8 +1191,8 @@ public:
 	struct CFI_CU_InfoArrays {
 			typedef typename CFISection<A>::CFI_Atom_Info CFI_Atom_Info;
 			typedef typename CUSection<A>::Info CU_Info;
-						CFI_CU_InfoArrays(const CFI_Atom_Info* cfiAr, uint32_t cfiC, CU_Info* cuAr, uint32_t cuC) 
-							: cfiArray(cfiAr), cuArray(cuAr), cfiCount(cfiC), cuCount(cuC) {} 
+						CFI_CU_InfoArrays(const CFI_Atom_Info* cfiAr, uint32_t cfiC, CU_Info* cuAr, uint32_t cuC)
+							: cfiArray(cfiAr), cuArray(cuAr), cfiCount(cfiC), cuCount(cuC) {}
 		const CFI_Atom_Info* const	cfiArray;
 			CU_Info* const			cuArray;
 		const uint32_t				cfiCount;
@@ -1203,9 +1203,9 @@ public:
 
 private:
 	friend class Section<A>;
-	
-	enum SectionType { sectionTypeIgnore, sectionTypeLiteral4, sectionTypeLiteral8, sectionTypeLiteral16, 
-						sectionTypeNonLazy, sectionTypeCFI, sectionTypeCString, sectionTypeCStringPointer, 
+
+	enum SectionType { sectionTypeIgnore, sectionTypeLiteral4, sectionTypeLiteral8, sectionTypeLiteral16,
+						sectionTypeNonLazy, sectionTypeCFI, sectionTypeCString, sectionTypeCStringPointer,
 						sectionTypeUTF16Strings, sectionTypeCFString, sectionTypeObjC2ClassRefs, typeObjC2List,
 						sectionTypeObjC1Classes, sectionTypeSymboled, sectionTypeObjC1ClassRefs,
 						sectionTypeTentativeDefinitions, sectionTypeAbsoluteSymbols, sectionTypeTLVDefs,
@@ -1216,7 +1216,7 @@ private:
 	{
 		const macho_section<P>* sect;
 		SectionType				type;
-		
+
 		static int sorter(const void* l, const void* r) {
 			const MachOSectionAndSectionClass<P>* left = (MachOSectionAndSectionClass<P>*)l;
 			const MachOSectionAndSectionClass<P>* right = (MachOSectionAndSectionClass<P>*)r;
@@ -1229,12 +1229,12 @@ private:
 				return 1;
 		}
 	};
-	
-	struct ParserAndSectionsArray { Parser* parser; const uint32_t* sortedSectionsArray; };
-	
 
-													Parser(const uint8_t* fileContent, uint64_t fileLength, 
-															const char* path, time_t modTime, ld::File::Ordinal ordinal, 
+	struct ParserAndSectionsArray { Parser* parser; const uint32_t* sortedSectionsArray; };
+
+
+													Parser(const uint8_t* fileContent, uint64_t fileLength,
+															const char* path, time_t modTime, ld::File::Ordinal ordinal,
 															bool warnUnwindConversionProblems, bool keepDwarfUnwind,
 															bool forceDwarfConversion, bool neverConvertDwarf,
 															bool verboseOptimizationHints);
@@ -1261,9 +1261,9 @@ private:
 	const char* 									getStrxString(uint64_t idx, bool dwarf64);
 
 	uint64_t										getDwarfOffset(uint64_t form, const uint8_t*& di, bool dwarf64);
-	bool											skip_form(const uint8_t ** offset, const uint8_t * end, 
+	bool											skip_form(const uint8_t ** offset, const uint8_t * end,
 																uint64_t form, uint8_t addr_size, bool dwarf64);
-	
+
 
 	// filled in by constructor
 	const uint8_t*								_fileContent;
@@ -1271,7 +1271,7 @@ private:
 	const char*									_path;
 	time_t										_modTime;
 	ld::File::Ordinal							_ordinal;
-	
+
 	// filled in by parseLoadCommands()
 	File<A>*									_file;
 	const macho_nlist<P>*						_symbols;
@@ -1290,7 +1290,7 @@ private:
 	macho_data_in_code_entry<P>*				_dataInCodeEnd;
 	const uint8_t*								_lohStart;
 	const uint8_t*								_lohEnd;
-		
+
 	// filled in by parse()
 	CFISection<A>*								_EHFrameSection;
 	CUSection<A>*								_compactUnwindSection;
@@ -1325,15 +1325,15 @@ private:
 
 
 template <typename A>
-Parser<A>::Parser(const uint8_t* fileContent, uint64_t fileLength, const char* path, time_t modTime, 
-					ld::File::Ordinal ordinal, bool convertDUI, bool keepDwarfUnwind, bool forceDwarfConversion, 
+Parser<A>::Parser(const uint8_t* fileContent, uint64_t fileLength, const char* path, time_t modTime,
+					ld::File::Ordinal ordinal, bool convertDUI, bool keepDwarfUnwind, bool forceDwarfConversion,
 					bool neverConvertDwarf, bool verboseOptimizationHints)
 		: _fileContent(fileContent), _fileLength(fileLength), _path(path), _modTime(modTime),
 			_ordinal(ordinal), _file(NULL),
 			_symbols(NULL), _symbolCount(0), _indirectSymbolCount(0), _strings(NULL), _stringsSize(0),
-			_indirectTable(NULL), _indirectTableCount(0), 
-			_undefinedStartIndex(0), _undefinedEndIndex(0), 
-			_sectionsStart(NULL), _machOSectionsCount(0), _hasUUID(false), 
+			_indirectTable(NULL), _indirectTableCount(0),
+			_undefinedStartIndex(0), _undefinedEndIndex(0),
+			_sectionsStart(NULL), _machOSectionsCount(0), _hasUUID(false),
 			_dataInCodeStart(NULL), _dataInCodeEnd(NULL),
 			_lohStart(NULL), _lohEnd(NULL),
 			_EHFrameSection(NULL), _compactUnwindSection(NULL), _absoluteSection(NULL),
@@ -1573,7 +1573,7 @@ bool Parser<A>::hasObjC2Categories(const uint8_t* fileContent)
 			const macho_section<P>* sectionsStart = (macho_section<P>*)((char*)segment + sizeof(macho_segment_command<P>));
 			for (uint32_t si=0; si < segment->nsects(); ++si) {
 				const macho_section<P>* sect = &sectionsStart[si];
-				if ( (sect->size() > 0) 
+				if ( (sect->size() > 0)
 					&& (strcmp(sect->sectname(), "__objc_catlist") == 0)
 					&& (strcmp(sect->segname(), "__DATA") == 0) ) {
 						return true;
@@ -1608,7 +1608,7 @@ bool Parser<A>::hasObjC1Categories(const uint8_t* fileContent)
 			const macho_section<P>* sectionsStart = (macho_section<P>*)((char*)segment + sizeof(macho_segment_command<P>));
 			for (uint32_t si=0; si < segment->nsects(); ++si) {
 				const macho_section<P>* sect = &sectionsStart[si];
-				if ( (sect->size() > 0) 
+				if ( (sect->size() > 0)
 					&& (strcmp(sect->sectname(), "__category") == 0)
 					&& (strcmp(sect->segname(), "__OBJC") == 0) ) {
 						return true;
@@ -1658,7 +1658,7 @@ bool Parser<A>::getNonLocalSymbols(const uint8_t* fileContent, std::vector<const
 template <typename A>
 int Parser<A>::pointerSorter(const void* l, const void* r)
 {
-	// sort references by address 
+	// sort references by address
 	const pint_t* left = (pint_t*)l;
 	const pint_t* right = (pint_t*)r;
 	return (*left - *right);
@@ -1681,7 +1681,7 @@ typename A::P::uint_t Parser<A>::LabelAndCFIBreakIterator::peek(Parser<A>& parse
 		if ( cfiAddr <  endAddr )
 			return cfiAddr;
 		else
-			return endAddr;		
+			return endAddr;
 	}
 	else  {
 		if ( symbolAddr <  endAddr )
@@ -1697,7 +1697,7 @@ typename A::P::uint_t Parser<A>::LabelAndCFIBreakIterator::peek(Parser<A>& parse
 // was becuase of a label, the symbol). Returns false when no more chunks.
 //
 template <typename A>
-bool Parser<A>::LabelAndCFIBreakIterator::next(Parser<A>& parser, const Section<A>& sect, uint32_t sectNum, pint_t startAddr, pint_t endAddr, 
+bool Parser<A>::LabelAndCFIBreakIterator::next(Parser<A>& parser, const Section<A>& sect, uint32_t sectNum, pint_t startAddr, pint_t endAddr,
 												pint_t* addr, pint_t* size, const macho_nlist<P>** symbol)
 {
 	bool cfiApplicable = (sect.machoSection()->flags() & (S_ATTR_PURE_INSTRUCTIONS | S_ATTR_SOME_INSTRUCTIONS));
@@ -1806,7 +1806,7 @@ bool Parser<A>::LabelAndCFIBreakIterator::next(Parser<A>& parser, const Section<
 			*symbol = &sym;
 			return true;
 		}
-		else if ( nextCfiAddr < nextSymbolAddr ) { 
+		else if ( nextCfiAddr < nextSymbolAddr ) {
 			if ( nextCfiAddr >= endAddr )
 				return false;
 			++cfiIndex;
@@ -1834,7 +1834,7 @@ bool Parser<A>::LabelAndCFIBreakIterator::next(Parser<A>& parser, const Section<
 		const macho_nlist<P>& sym = parser.symbolFromIndex(sortedSymbolIndexes[symIndex]);
 		pint_t nextSymbolAddr = sym.n_value();
 		// if next symbol found is not in this section, then done with iteration
-		if ( sym.n_sect() != sectNum ) 
+		if ( sym.n_sect() != sectNum )
 			return false;
 		++symIndex;
 		if ( nextSymbolAddr < startAddr )
@@ -1872,7 +1872,7 @@ typename A::P::uint_t Parser<A>::realAddr(typename A::P::uint_t addr)
 }
 
 #if !__has_builtin(__builtin_mul_overflow) // ld64-port (clang < 3.8)
-template<typename T> 
+template<typename T>
 bool __builtin_mul_overflow(uint32_t a, uint32_t b, T *r)
 {
 	static_assert(sizeof(T) == sizeof(uint32_t), "");
@@ -1921,26 +1921,26 @@ ld::relocatable::File* Parser<A>::parse(const ParserOptions& opts)
 	// respond to -t option
 	if ( opts.logAllFiles )
 		printf("%s\n", _path);
-		
+
 	_armUsesZeroCostExceptions = opts.armUsesZeroCostExceptions;
 	_maxDefaultCommonAlignment = opts.maxDefaultCommonAlignment;
 
 	// parse start of mach-o file
 	if ( ! parseLoadCommands(opts.platforms, opts.internalSDK) )
 		return _file;
-	
+
 	// make array of
 	uint32_t sortedSectionIndexes[_machOSectionsCount];
 	this->makeSortedSectionsArray(sortedSectionIndexes);
-	
+
 	// make symbol table sorted by address
 	this->prescanSymbolTable();
 	uint32_t sortedSymbolIndexes[_symbolsInSections];
 	this->makeSortedSymbolsArray(sortedSymbolIndexes, sortedSectionIndexes);
-		
+
 	// allocate Section<A> object for each mach-o section
 	makeSections();
-	
+
 	// if it exists, do special early parsing of __compact_unwind section
 	uint32_t countOfCUs = 0;
 	if ( _compactUnwindSection != NULL )
@@ -1961,18 +1961,18 @@ ld::relocatable::File* Parser<A>::parse(const ParserOptions& opts)
 		if ( cuInfoArray[i].lsdaAddress != 0 )
 			++cuLsdaCount;
 	}
-	
-	
-	// if it exists, do special early parsing of __eh_frame section 
+
+
+	// if it exists, do special early parsing of __eh_frame section
 	// stack allocate (if not too large) array of CFI_Atom_Info
 	uint32_t countOfCFIs = 0;
 	if ( _EHFrameSection != NULL )
 		countOfCFIs = _EHFrameSection->cfiCount(*this);
 	STACK_ALLOC_IF_SMALL(typename CFISection<A>::CFI_Atom_Info, cfiArray, countOfCFIs, 1024);
-	
+
 	// stack allocate (if not too large) a copy of __eh_frame to apply relocations to
 	uint32_t sectSize = 4;
-	if ( (countOfCFIs != 0) && _EHFrameSection->needsRelocating() ) 
+	if ( (countOfCFIs != 0) && _EHFrameSection->needsRelocating() )
 		sectSize = _EHFrameSection->machoSection()->size()+4;
 	STACK_ALLOC_IF_SMALL(uint8_t, ehBuffer, sectSize, 50*1024);
 	uint32_t cfiStartsCount = 0;
@@ -1993,7 +1993,7 @@ ld::relocatable::File* Parser<A>::parse(const ParserOptions& opts)
 		}
 	}
 	CFI_CU_InfoArrays cfis(cfiArray, countOfCFIs, cuInfoArray, countOfCUs);
-	
+
 	// create sorted array of function starts and lsda starts
 	STACK_ALLOC_IF_SMALL(pint_t, cfiStartsArray, cfiStartsCount+cuLsdaCount, 1024);
 	uint32_t countOfFDEs = 0;
@@ -2032,14 +2032,14 @@ ld::relocatable::File* Parser<A>::parse(const ParserOptions& opts)
 		for(uint32_t i=1; i < cfiStartsArrayCount; ++i) {
 			assert( cfiStartsArray[i] != cfiStartsArray[i-1] );
 		}
-	#endif	
+	#endif
 	}
-	
+
 	Section<A>** sections = _file->_sectionsArray;
 	uint32_t	sectionsCount = _file->_sectionsArrayCount;
 
 	// figure out how many atoms will be allocated and allocate
-	LabelAndCFIBreakIterator breakIterator(sortedSymbolIndexes, _symbolsInSections, cfiStartsArray, 
+	LabelAndCFIBreakIterator breakIterator(sortedSymbolIndexes, _symbolsInSections, cfiStartsArray,
 											cfiStartsArrayCount, _overlappingSymbols);
 	uint32_t computedAtomCount = 0;
 	for (uint32_t i=0; i < sectionsCount; ++i ) {
@@ -2052,9 +2052,9 @@ ld::relocatable::File* Parser<A>::parse(const ParserOptions& opts)
 	//fprintf(stderr, "allocating %d atoms * sizeof(Atom<A>)=%ld, sizeof(ld::Atom)=%ld\n", computedAtomCount, sizeof(Atom<A>), sizeof(ld::Atom));
 	_file->_atomsArray = new uint8_t[computedAtomCount*sizeof(Atom<A>)];
 	_file->_atomsArrayCount = 0;
-	
+
 	// have each section append atoms to _atomsArray
-	LabelAndCFIBreakIterator breakIterator2(sortedSymbolIndexes, _symbolsInSections, cfiStartsArray, 
+	LabelAndCFIBreakIterator breakIterator2(sortedSymbolIndexes, _symbolsInSections, cfiStartsArray,
 												cfiStartsArrayCount, _overlappingSymbols);
 	for (uint32_t i=0; i < sectionsCount; ++i ) {
 		uint8_t* atoms = _file->_atomsArray + _file->_atomsArrayCount*sizeof(Atom<A>);
@@ -2065,12 +2065,12 @@ ld::relocatable::File* Parser<A>::parse(const ParserOptions& opts)
 	}
 	assert( _file->_atomsArrayCount == computedAtomCount && "more atoms allocated than expected");
 
-	
+
 	// have each section add all fix-ups for its atoms
 	_allFixups.reserve(computedAtomCount*5);
 	for (uint32_t i=0; i < sectionsCount; ++i )
 		sections[i]->makeFixups(*this, cfis);
-	
+
 	// assign fixups start offset for each atom
 	uint8_t* p = _file->_atomsArray;
 	uint32_t fixupOffset = 0;
@@ -2083,14 +2083,14 @@ ld::relocatable::File* Parser<A>::parse(const ParserOptions& opts)
 	}
 	assert(fixupOffset == _allFixups.size());
 	_file->_fixups.resize(fixupOffset);
-	
-	// copy each fixup for each atom 
+
+	// copy each fixup for each atom
 	for(typename std::vector<FixupInAtom>::iterator it=_allFixups.begin(); it != _allFixups.end(); ++it) {
 		uint32_t slot = it->atom->_fixupsStartIndex + it->atom->_fixupsCount;
 		_file->_fixups[slot] = it->fixup;
 		it->atom->_fixupsCount++;
 	}
-	
+
 	// done with temp vector
 	_allFixups.clear();
 
@@ -2133,13 +2133,13 @@ ld::relocatable::File* Parser<A>::parse(const ParserOptions& opts)
 				}
 				lastFunc->extendUnwindInfoRange();
 			}
-			else 
+			else
 				info->function->setUnwindInfoRange(_file->_unwindInfos.size()-1, 1);
 			lastFunc = info->function;
 			lastEnd = ui.startOffset + info->rangeLength;
 		}
 	}
-	
+
 	// process indirect symbols which become AliasAtoms
 	_file->_aliasAtomsArray = NULL;
 	_file->_aliasAtomsArrayCount = 0;
@@ -2148,14 +2148,16 @@ ld::relocatable::File* Parser<A>::parse(const ParserOptions& opts)
 		_file->_aliasAtomsArray = new uint8_t[_file->_aliasAtomsArrayCount*sizeof(AliasAtom)];
 		this->appendAliasAtoms(_file->_aliasAtomsArray);
 	}
-	
-	
+
+
 	// parse dwarf debug info to get line info
 	this->parseDebugInfo();
 
 	return _file;
 }
 
+template <> uint8_t Parser<ppc>::loadCommandSizeMask()		{ return 0x03; }
+template <> uint8_t Parser<ppc64>::loadCommandSizeMask()	{ return 0x07; }
 template <> uint8_t Parser<x86>::loadCommandSizeMask()		{ return 0x03; }
 template <> uint8_t Parser<x86_64>::loadCommandSizeMask()	{ return 0x07; }
 template <> uint8_t Parser<arm>::loadCommandSizeMask()		{ return 0x03; }
@@ -2300,7 +2302,7 @@ bool Parser<A>::parseLoadCommands(const ld::VersionSet& cmdLinePlatforms, bool i
 	cmdLinePlatforms.checkObjectCrosslink(lcPlatforms, path(), internalSDK, _usingBitcode, _platformMismatchesAreWarning);
 
 	// validate just one segment
-	if ( segment == NULL ) 
+	if ( segment == NULL )
 		throw "missing LC_SEGMENT";
 	if ( segment->fileoff() > _fileLength )
 		throw "LC_SEGMENT fileoff too large";
@@ -2407,7 +2409,7 @@ void Parser<A>::prescanSymbolTable()
 		// ignore stabs
 		if ( (sym.n_type() & N_STAB) != 0 )
 			continue;
-			
+
 		// look at undefines
 		const char* symbolName = this->nameFromSymbol(sym);
 		if ( (sym.n_type() & N_TYPE) == N_UNDF ) {
@@ -2432,12 +2434,12 @@ void Parser<A>::prescanSymbolTable()
 		// count absolute symbols
 		if ( (sym.n_type() & N_TYPE) == N_ABS ) {
 			const char* absName = this->nameFromSymbol(sym);
-			// ignore .objc_class_name_* symbols 
+			// ignore .objc_class_name_* symbols
 			if ( strncmp(absName, ".objc_class_name_", 17) == 0 ) {
 				_AppleObjc = true;
 				continue;
 			}
-			// ignore .objc_class_name_* symbols 
+			// ignore .objc_class_name_* symbols
 			if ( strncmp(absName, ".objc_category_name_", 20) == 0 )
 				continue;
 			// ignore empty *.eh symbols
@@ -2445,22 +2447,22 @@ void Parser<A>::prescanSymbolTable()
 				continue;
 			++_absoluteSymbolCount;
 		}
-		
+
 		// only look at definitions
 		if ( (sym.n_type() & N_TYPE) != N_SECT )
 			continue;
-		
+
 		// 'L' labels do not denote atom breaks
 		if ( symbolName[0] == 'L' ) {
 			// <rdar://problem/9218847> Formalize data in code with L$start$ labels
-			if ( strncmp(symbolName, "L$start$", 8) == 0 ) 
+			if ( strncmp(symbolName, "L$start$", 8) == 0 )
 				_hasDataInCodeLabels = true;
 			continue;
 		}
 		// how many def syms in each section
 		if ( sym.n_sect() > _machOSectionsCount )
 			throw "bad n_sect in symbol table";
-			
+
 		_symbolsInSections++;
 	}
 }
@@ -2475,11 +2477,11 @@ void Parser<A>::appendAliasAtoms(uint8_t* p)
 			continue;
 
 		// only look at N_INDR symbols
-		if ( (sym.n_type() & N_TYPE) != N_INDR ) 
+		if ( (sym.n_type() & N_TYPE) != N_INDR )
 			continue;
 
 		// skip non-external aliases
-		if ( (sym.n_type() & N_EXT) == 0 ) 
+		if ( (sym.n_type() & N_EXT) == 0 )
 			continue;
 
 		const char* symbolName = this->nameFromSymbol(sym);
@@ -2501,7 +2503,7 @@ int Parser<A>::sectionIndexSorter(void* extra, const void* l, const void* r)
 	const uint32_t* right = (uint32_t*)r;
 	const macho_section<P>* leftSect =	parser->machOSectionFromSectionIndex(*left);
 	const macho_section<P>* rightSect = parser->machOSectionFromSectionIndex(*right);
-	
+
 	// can't just return difference because 64-bit diff does not fit in 32-bit return type
 	int64_t result = leftSect->addr() - rightSect->addr();
 	if ( result == 0 ) {
@@ -2527,13 +2529,13 @@ template <typename A>
 void Parser<A>::makeSortedSectionsArray(uint32_t array[])
 {
 	const bool log = false;
-	
+
 	if ( log ) {
 		fprintf(stderr, "unsorted sections:\n");
-		for(unsigned int i=0; i < _machOSectionsCount; ++i ) 
+		for(unsigned int i=0; i < _machOSectionsCount; ++i )
 			fprintf(stderr, "0x%08llX %s %s\n", _sectionsStart[i].addr(), _sectionsStart[i].segname(), _sectionsStart[i].sectname());
  	}
-	
+
 	// sort by symbol table address
 	for (uint32_t i=0; i < _machOSectionsCount; ++i)
 		array[i] = i;
@@ -2541,7 +2543,7 @@ void Parser<A>::makeSortedSectionsArray(uint32_t array[])
 
 	if ( log ) {
 		fprintf(stderr, "sorted sections:\n");
-		for(unsigned int i=0; i < _machOSectionsCount; ++i ) 
+		for(unsigned int i=0; i < _machOSectionsCount; ++i )
 			fprintf(stderr, "0x%08llX %s %s\n", _sectionsStart[array[i]].addr(), _sectionsStart[array[i]].segname(), _sectionsStart[array[i]].sectname());
 	}
 }
@@ -2580,7 +2582,7 @@ int Parser<A>::symbolIndexSorter(void* extra, const void* l, const void* r)
 		if ( leftIsTmp != rightIsTmp ) {
 			return (rightIsTmp ? -1 : 1);
 		}
-		
+
 		// if only one is global, make the other an alias (sort first)
 		if ( (leftSym.n_type() & N_EXT) != (rightSym.n_type() & N_EXT) ) {
 			if ( (rightSym.n_type() & N_EXT) != 0 )
@@ -2602,18 +2604,18 @@ template <typename A>
 void Parser<A>::makeSortedSymbolsArray(uint32_t array[], const uint32_t sectionArray[])
 {
 	const bool log = false;
-	
+
 	uint32_t* p = array;
 	for (uint32_t i=0; i < this->_symbolCount; ++i) {
 		const macho_nlist<P>& sym =	symbolFromIndex(i);
 		// ignore stabs
 		if ( (sym.n_type() & N_STAB) != 0 )
 			continue;
-		
+
 		// only look at definitions
 		if ( (sym.n_type() & N_TYPE) != N_SECT )
 			continue;
-		
+
 		// 'L' labels do not denote atom breaks
 		const char* symbolName = this->nameFromSymbol(sym);
 		if ( symbolName[0] == 'L' )
@@ -2622,16 +2624,16 @@ void Parser<A>::makeSortedSymbolsArray(uint32_t array[], const uint32_t sectionA
 		// how many def syms in each section
 		if ( sym.n_sect() > _machOSectionsCount )
 			throw "bad n_sect in symbol table";
-			
+
 		// append to array
 		*p++ = i;
 	}
 	assert(p == &array[_symbolsInSections] && "second pass over symbol table yield a different number of symbols");
-	
+
 	// sort by symbol table address
 	ParserAndSectionsArray extra = { this, sectionArray };
 	::qsort_r(array, _symbolsInSections, sizeof(uint32_t), &extra, &symbolIndexSorter);
-	
+
 
 	// look for two symbols at same address
 	_overlappingSymbols = false;
@@ -2645,7 +2647,7 @@ void Parser<A>::makeSortedSymbolsArray(uint32_t array[], const uint32_t sectionA
 
 	if ( log ) {
 		fprintf(stderr, "sorted symbols:\n");
-		for(unsigned int i=0; i < _symbolsInSections; ++i ) 
+		for(unsigned int i=0; i < _symbolsInSections; ++i )
 			fprintf(stderr, "0x%09llX symIndex=%d sectNum=%2d, %s\n", symbolFromIndex(array[i]).n_value(), array[i], symbolFromIndex(array[i]).n_sect(), nameFromSymbol(symbolFromIndex(array[i])) );
 	}
 }
@@ -2740,7 +2742,7 @@ void Parser<A>::makeSections()
 				_file->_swiftLanguageVersion = ((flags >> 16) & 0xFFFF);
                 _file->_objcHasCategoryClassPropertiesField = (flags & 64);
 				if ( sect->size() > 8 ) {
-					warning("section %s/%s has unexpectedly large size %llu in %s", 
+					warning("section %s/%s has unexpectedly large size %llu in %s",
 							sect->segname(), Section<A>::makeSectionName(sect), sect->size(), _file->path());
 				}
 			}
@@ -2868,16 +2870,16 @@ void Parser<A>::makeSections()
 		_file->_bitcode = std::unique_ptr<ld::Bitcode>(new ld::BundleBitcode(&_fileContent[bundleSect->offset()], bundleSect->size()));
 	else if ( bitcodeAsm )
 		_file->_bitcode = std::unique_ptr<ld::Bitcode>(new ld::AsmBitcode(_fileContent, _fileLength));
-	
+
 	// sort by address (mach-o object files don't aways have sections sorted)
 	::qsort(machOSects, count, sizeof(MachOSectionAndSectionClass<P>), MachOSectionAndSectionClass<P>::sorter);
-		
+
 	// we will synthesize a dummy Section<A> object for tentative definitions
 	if ( _tentativeDefinitionCount > 0 ) {
 		totalSectionsSize += sizeof(TentativeDefinitionSection<A>);
 		machOSects[count++].type = sectionTypeTentativeDefinitions;
 	}
-	
+
 	// we will synthesize a dummy Section<A> object for Absolute symbols
 	if ( _absoluteSymbolCount > 0 ) {
 		totalSectionsSize += sizeof(AbsoluteSymbolSection<A>);
@@ -2947,7 +2949,7 @@ void Parser<A>::makeSections()
 				*objects++ = new (space) ObjC2ClassOrCategoryListSection<A>(*this, *_file, machOSects[i].sect);
 				space += sizeof(ObjC2ClassOrCategoryListSection<A>);
 				break;
-			case sectionTypeObjC1Classes: 
+			case sectionTypeObjC1Classes:
 				*objects++ = new (space) ObjC1ClassSection<A>(*this, *_file, machOSects[i].sect);
 				space += sizeof(ObjC1ClassSection<A>);
 				break;
@@ -3003,7 +3005,7 @@ Section<A>* Parser<A>::sectionForAddress(typename A::P::uint_t addr)
 			}
 		}
 	}
-	
+
 	throwf("sectionForAddress(0x%llX) address not in any section", (uint64_t)addr);
 }
 
@@ -3031,7 +3033,7 @@ Atom<A>* Parser<A>::findAtomByAddress(pint_t addr)
 template <typename A>
 Atom<A>* Parser<A>::findAtomByAddressOrNullIfStub(pint_t addr)
 {
-	if ( hasStubsSection() && (_stubsMachOSection->addr() <= addr) && (addr < (_stubsMachOSection->addr()+_stubsMachOSection->size())) ) 
+	if ( hasStubsSection() && (_stubsMachOSection->addr() <= addr) && (addr < (_stubsMachOSection->addr()+_stubsMachOSection->size())) )
 		return NULL;
 	return findAtomByAddress(addr);
 }
@@ -3187,7 +3189,7 @@ const char* Parser<A>::scanSymbolTableForAddress(uint64_t addr)
 		// ignore stabs
 		if ( (sym.n_type() & N_STAB) != 0 )
 			continue;
-		
+
 		// only look at definitions
 		if ( (sym.n_type() & N_TYPE) != N_SECT )
 			continue;
@@ -3195,13 +3197,13 @@ const char* Parser<A>::scanSymbolTableForAddress(uint64_t addr)
 		// return with exact match
 		if ( sym.n_value() == addr ) {
 			const char* name = nameFromSymbol(sym);
-			if ( strncmp(name, "ltmp", 4) != 0 ) 
+			if ( strncmp(name, "ltmp", 4) != 0 )
 				return name;
 			// treat 'ltmp*' labels as close match
 			closestSymAddr = sym.n_value();
 			closestSymName = name;
 		}
-		
+
 		// record closest seen so far
 		if ( (sym.n_value() < addr) && ((sym.n_value() > closestSymAddr) || (closestSymName == NULL)) )
 			closestSymName = nameFromSymbol(sym);
@@ -3261,6 +3263,9 @@ void Parser<A>::addFixups(const SourceLocation& src, ld::Fixup::Kind setKind, co
 				break;
 			case ld::Fixup::kindStoreThumbBranch22:
 				firstKind = ld::Fixup::kindStoreTargetAddressThumbBranch22;
+				break;
+			case ld::Fixup::kindStorePPCBranch24:
+				firstKind = ld::Fixup::kindStoreTargetAddressPPCBranch24;
 				break;
 #if SUPPORT_ARCH_arm64
 			case ld::Fixup::kindStoreARM64Branch26:
@@ -3391,16 +3396,16 @@ void Parser<A>::addFixups(const SourceLocation& src, ld::Fixup::Kind kind, const
 
 
 template <typename A>
-uint32_t TentativeDefinitionSection<A>::computeAtomCount(class Parser<A>& parser, 
-															struct Parser<A>::LabelAndCFIBreakIterator& it, 
+uint32_t TentativeDefinitionSection<A>::computeAtomCount(class Parser<A>& parser,
+															struct Parser<A>::LabelAndCFIBreakIterator& it,
 															const struct Parser<A>::CFI_CU_InfoArrays&)
 {
 	return parser.tentativeDefinitionCount();
 }
 
 template <typename A>
-uint32_t TentativeDefinitionSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p, 
-														struct Parser<A>::LabelAndCFIBreakIterator& it, 
+uint32_t TentativeDefinitionSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p,
+														struct Parser<A>::LabelAndCFIBreakIterator& it,
 														const struct Parser<A>::CFI_CU_InfoArrays&)
 {
 	this->_beginAtoms = (Atom<A>*)p;
@@ -3413,7 +3418,7 @@ uint32_t TentativeDefinitionSection<A>::appendAtoms(class Parser<A>& parser, uin
 			if ( alignP2 == 0 ) {
 				// common symbols align to their size
 				// that is, a 4-byte common aligns to 4-bytes
-				// if this size is not a power of two, 
+				// if this size is not a power of two,
 				// then round up to the next power of two
 				alignP2 = 63 - (uint8_t)__builtin_clzll(size);
 				if ( size != (1ULL << alignP2) )
@@ -3424,8 +3429,8 @@ uint32_t TentativeDefinitionSection<A>::appendAtoms(class Parser<A>& parser, uin
 			}
 			Atom<A>* allocatedSpace = (Atom<A>*)p;
 			new (allocatedSpace) Atom<A>(*this, parser.nameFromSymbol(sym), (pint_t)ULLONG_MAX, size,
-										ld::Atom::definitionTentative,  ld::Atom::combineByName, 
-										parser.scopeFromSymbol(sym), ld::Atom::typeZeroFill, ld::Atom::symbolTableIn, 
+										ld::Atom::definitionTentative,  ld::Atom::combineByName,
+										parser.scopeFromSymbol(sym), ld::Atom::typeZeroFill, ld::Atom::symbolTableIn,
 										parser.dontDeadStripFromSymbol(sym), false, false, ld::Atom::Alignment(alignP2) );
 			p += sizeof(Atom<A>);
 			++count;
@@ -3437,16 +3442,16 @@ uint32_t TentativeDefinitionSection<A>::appendAtoms(class Parser<A>& parser, uin
 
 
 template <typename A>
-uint32_t AbsoluteSymbolSection<A>::computeAtomCount(class Parser<A>& parser, 
-															struct Parser<A>::LabelAndCFIBreakIterator& it, 
+uint32_t AbsoluteSymbolSection<A>::computeAtomCount(class Parser<A>& parser,
+															struct Parser<A>::LabelAndCFIBreakIterator& it,
 															const struct Parser<A>::CFI_CU_InfoArrays&)
 {
 	return parser.absoluteSymbolCount();
 }
 
 template <typename A>
-uint32_t AbsoluteSymbolSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p, 
-														struct Parser<A>::LabelAndCFIBreakIterator& it, 
+uint32_t AbsoluteSymbolSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p,
+														struct Parser<A>::LabelAndCFIBreakIterator& it,
 														const struct Parser<A>::CFI_CU_InfoArrays&)
 {
 	this->_beginAtoms = (Atom<A>*)p;
@@ -3456,10 +3461,10 @@ uint32_t AbsoluteSymbolSection<A>::appendAtoms(class Parser<A>& parser, uint8_t*
 		if ( (sym.n_type() & N_TYPE) != N_ABS )
 			continue;
 		const char* absName = parser.nameFromSymbol(sym);
-		// ignore .objc_class_name_* symbols 
+		// ignore .objc_class_name_* symbols
 		if ( strncmp(absName, ".objc_class_name_", 17) == 0 )
 			continue;
-		// ignore .objc_class_name_* symbols 
+		// ignore .objc_class_name_* symbols
 		if ( strncmp(absName, ".objc_category_name_", 20) == 0 )
 			continue;
 		// ignore empty *.eh symbols
@@ -3480,7 +3485,7 @@ Atom<A>* AbsoluteSymbolSection<A>::findAbsAtomForValue(typename A::P::uint_t val
 {
 	Atom<A>* end = this->_endAtoms;
 	for(Atom<A>* p = this->_beginAtoms; p < end; ++p) {
-		if ( p->_objAddress == value )	
+		if ( p->_objAddress == value )
 			return p;
 	}
 	return NULL;
@@ -3526,7 +3531,7 @@ uint32_t Parser<A>::symbolIndexFromIndirectSectionAddress(pint_t addr, const mac
 			break;
 		default:
 			throw "section does not use indirect symbol table";
-	}	
+	}
 	uint32_t indexInSection = (addr - sect->addr()) / elementSize;
 	uint32_t indexIntoIndirectTable = sect->reserved1() + indexInSection;
 	return this->indirectSymbol(indexIntoIndirectTable);
@@ -3567,7 +3572,7 @@ ld::Atom::Definition Parser<A>::definitionFromSymbol(const macho_nlist<P>& sym)
 		case N_SECT:
 			return ld::Atom::definitionRegular;
 		case N_UNDF:
-			if ( sym.n_value() != 0 ) 
+			if ( sym.n_value() != 0 )
 				return ld::Atom::definitionTentative;
 	}
 	throw "definitionFromSymbol() bad symbol";
@@ -3576,7 +3581,7 @@ ld::Atom::Definition Parser<A>::definitionFromSymbol(const macho_nlist<P>& sym)
 template <typename A>
 ld::Atom::Combine Parser<A>::combineFromSymbol(const macho_nlist<P>& sym)
 {
-	if ( sym.n_desc() & N_WEAK_DEF ) 
+	if ( sym.n_desc() & N_WEAK_DEF )
 		return ld::Atom::combineByName;
 	else
 		return ld::Atom::combineNever;
@@ -3589,7 +3594,7 @@ ld::Atom::SymbolTableInclusion Parser<A>::inclusionFromSymbol(const macho_nlist<
 	const char* symbolName = nameFromSymbol(sym);
 	// labels beginning with 'l' (lowercase ell) are automatically removed in final linked images <rdar://problem/4571042>
 	// labels beginning with 'L' should have been stripped by the assembler, so are stripped now
-	if ( sym.n_desc() & REFERENCED_DYNAMICALLY ) 
+	if ( sym.n_desc() & REFERENCED_DYNAMICALLY )
 		return ld::Atom::symbolTableInAndNeverStrip;
 	else if ( symbolName[0] == 'l' )
 		return ld::Atom::symbolTableNotInFinalLinkedImages;
@@ -3768,7 +3773,7 @@ bool Parser<A>::skip_form(const uint8_t ** offset, const uint8_t * end, uint64_t
 	case DW_FORM_sec_offset:
 	  sz = sizeof(typename A::P::uint_t);
       break;
-	
+
 	case DW_FORM_exprloc:
       sz = read_uleb128 (offset, end);
       break;
@@ -3776,7 +3781,7 @@ bool Parser<A>::skip_form(const uint8_t ** offset, const uint8_t * end, uint64_t
     case DW_FORM_flag_present:
 	  sz = 0;
 	  break;
-	  
+
     case DW_FORM_ref_sig8:
 	  sz = 8;
 	  break;
@@ -3878,7 +3883,7 @@ const char* Parser<A>::getDwarfString(uint64_t form, const uint8_t*& di, bool dw
 template <typename A>
 uint64_t Parser<A>::getDwarfOffset(uint64_t form, const uint8_t*& di, bool dwarf64)
 {
-	if ( form == DW_FORM_sec_offset ) 
+	if ( form == DW_FORM_sec_offset )
 		form = (dwarf64 ? DW_FORM_data8 : DW_FORM_data4);
 	uint64_t result = -1;
 	switch (form) {
@@ -3926,7 +3931,7 @@ template <typename A>
 void Parser<A>::parseDebugInfo()
 {
 	addAstFiles();
-	
+
 	// check for dwarf __debug_info section
 	if ( _file->_dwarfDebugInfoSect == NULL ) {
 		// if no DWARF debug info, look for stabs
@@ -3935,7 +3940,7 @@ void Parser<A>::parseDebugInfo()
 	}
 	if ( _file->_dwarfDebugInfoSect->size() == 0 )
 		return;
-		
+
 	uint64_t stmtList;
 	const char* tuDir;
 	const char* tuName;
@@ -3958,7 +3963,7 @@ void Parser<A>::parseDebugInfo()
 	else {
 		_file->_dwarfTranslationUnitPath = NULL;
 	}
-	
+
 	// add line number info to atoms from dwarf
 	std::vector<AtomAndLineInfo<A> > entries;
 	entries.reserve(64);
@@ -4010,7 +4015,7 @@ void Parser<A>::parseDebugInfo()
 							}
 							if ( curAtom == NULL )
 								break; // file has line info but no functions
-							if ( result.end_of_sequence && (curAtomAddress+curAtomSize < result.pc) ) {	
+							if ( result.end_of_sequence && (curAtomAddress+curAtomSize < result.pc) ) {
 								// a one line function can be returned by line_next() as one entry with pc at end of blob
 								// look for alt atom starting at end of previous atom
 								uint32_t previousEnd = curAtomAddress+curAtomSize;
@@ -4051,7 +4056,7 @@ void Parser<A>::parseDebugInfo()
 							entry.info.atomOffset = curAtomOffset;
 							entry.info.fileName = filename;
 							entry.info.lineNumber = result.line;
-							//fprintf(stderr, "addr=0x%08llX, line=%lld, file=%s, atom=%s, atom.size=0x%X, end=%d\n", 
+							//fprintf(stderr, "addr=0x%08llX, line=%lld, file=%s, atom=%s, atom.size=0x%X, end=%d\n",
 							//		result.pc, result.line, filename, curAtom->name(), curAtomSize, result.end_of_sequence);
 							entries.push_back(entry);
 							curAtom->incrementLineInfoCount();
@@ -4065,7 +4070,7 @@ void Parser<A>::parseDebugInfo()
 			}
 		}
 	}
-		
+
 	// assign line info start offset for each atom
 	uint8_t* p = _file->_atomsArray;
 	uint32_t liOffset = 0;
@@ -4079,13 +4084,13 @@ void Parser<A>::parseDebugInfo()
 	assert(liOffset == entries.size());
 	_file->_lineInfos.resize(liOffset);
 
-	// copy each line info for each atom 
+	// copy each line info for each atom
 	for (typename std::vector<AtomAndLineInfo<A> >::iterator it = entries.begin(); it != entries.end(); ++it) {
 		uint32_t slot = it->atom->_lineInfoStartIndex + it->atom->_lineInfoCount;
 		_file->_lineInfos[slot] = it->info;
 		it->atom->_lineInfoCount++;
 	}
-	
+
 	// done with temp vector
 	entries.clear();
 }
@@ -4411,7 +4416,7 @@ bool Parser<A>::read_comp_unit(const char ** name, const char ** comp_dir,
 
         if (total_size > _file->_dwarfDebugInfoSect->size() || sz <= (min_length))
             return false;
-		
+
 		if (vers == 5) {
 			/* Verify unit type */
 			char unit_type = (*(char *)di);
@@ -4537,7 +4542,7 @@ bool File<A>::forEachAtom(ld::File::AtomHandler& handler) const
 		handler.doAtom(*((AliasAtom*)p));
 		p += sizeof(AliasAtom);
 	}
-	
+
 	return (_atomsArrayCount != 0) || (_aliasAtomsArrayCount != 0);
 }
 
@@ -4547,7 +4552,7 @@ const char* Section<A>::makeSegmentName(const macho_section<typename A::P>* sect
 	// mach-o section record only has room for 16-byte seg/sect names
 	// so a 16-byte name has no trailing zero
 	const char* name = sect->segname();
-	if ( strlen(name) < 16 ) 
+	if ( strlen(name) < 16 )
 		return name;
 	char* tmp = new char[17];
 	strlcpy(tmp, name, 17);
@@ -4558,9 +4563,9 @@ template <typename A>
 const char* Section<A>::makeSectionName(const macho_section<typename A::P>* sect)
 {
 	const char* name = sect->sectname();
-	if ( strlen(name) < 16 ) 
+	if ( strlen(name) < 16 )
 		return name;
-		
+
 	// special case common long section names so we don't have to malloc
 	if ( strncmp(sect->sectname(), "__objc_classrefs", 16) == 0 )
 		return "__objc_classrefs";
@@ -4648,7 +4653,7 @@ ld::Section::Type Section<A>::sectionType(const macho_section<typename A::P>* se
 				return ld::Section::typeCode;
 			}
 			else if ( strcmp(sect->segname(), "__TEXT") == 0 ) {
-				if ( strcmp(sect->sectname(), "__eh_frame") == 0 ) 
+				if ( strcmp(sect->sectname(), "__eh_frame") == 0 )
 					return ld::Section::typeCFI;
 				else if ( strcmp(sect->sectname(), "__ustring") == 0 )
 					return ld::Section::typeUTF16Strings;
@@ -4660,7 +4665,7 @@ ld::Section::Type Section<A>::sectionType(const macho_section<typename A::P>* se
 					return ld::Section::typeInitializerPointers;
 			}
 			else if ( strcmp(sect->segname(), "__DATA") == 0 ) {
-				if ( strcmp(sect->sectname(), "__cfstring") == 0 ) 
+				if ( strcmp(sect->sectname(), "__cfstring") == 0 )
 					return ld::Section::typeCFString;
 				else if ( strcmp(sect->sectname(), "__dyld") == 0 )
 					return ld::Section::typeDyldInfo;
@@ -4678,7 +4683,7 @@ ld::Section::Type Section<A>::sectionType(const macho_section<typename A::P>* se
 					return ld::Section::typeObjC2CategoryList;
 			}
 			else if ( strcmp(sect->segname(), "__OBJC") == 0 ) {
-				if ( strcmp(sect->sectname(), "__class") == 0 ) 
+				if ( strcmp(sect->sectname(), "__class") == 0 )
 					return ld::Section::typeObjC1Classes;
 			}
 			break;
@@ -4716,13 +4721,13 @@ Atom<A>* Section<A>::findContentAtomByAddress(pint_t addr, class Atom<A>* start,
 				return pivot;
 		}
 		if ( addr >= atomEndAddr ) {
-			// key > pivot 
+			// key > pivot
 			// move base to atom after pivot
 			base = &pivot[1];
-			--n; 
+			--n;
 		}
 		else {
-			// key < pivot 
+			// key < pivot
 			// keep same base
 		}
 	}
@@ -4730,8 +4735,8 @@ Atom<A>* Section<A>::findContentAtomByAddress(pint_t addr, class Atom<A>* start,
 }
 
 template <typename A>
-ld::Atom::Alignment Section<A>::alignmentForAddress(pint_t addr) 
-{ 
+ld::Atom::Alignment Section<A>::alignmentForAddress(pint_t addr)
+{
 	const uint32_t sectionAlignment = this->_machOSection->align();
 	uint32_t modulus = (addr % (1 << sectionAlignment));
 	if ( modulus > 0xFFFF )
@@ -4740,25 +4745,28 @@ ld::Atom::Alignment Section<A>::alignmentForAddress(pint_t addr)
 }
 
 template <typename A>
-uint32_t Section<A>::sectionNum(class Parser<A>& parser) const	
-{ 
+uint32_t Section<A>::sectionNum(class Parser<A>& parser) const
+{
 	if ( _machOSection == NULL )
 		return 0;
 	else
 		return 1 + (this->_machOSection - parser.firstMachOSection());
 }
 
+// libunwind does not support ppc64
+template <> uint32_t CFISection<ppc64>::cfiCount(Parser<ppc64>&) { return 0; }
+
 // arm does not have zero cost exceptions
-template <> 
-uint32_t CFISection<arm>::cfiCount(Parser<arm>& parser) 
+template <>
+uint32_t CFISection<arm>::cfiCount(Parser<arm>& parser)
 {
 	if ( parser.armUsesZeroCostExceptions() ) {
 		// create ObjectAddressSpace object for use by libunwind
 		OAS oas(*this, (uint8_t*)this->file().fileContent()+this->_machOSection->offset());
-		return libunwind::CFI_Parser<OAS>::getCFICount(oas, 
+		return libunwind::CFI_Parser<OAS>::getCFICount(oas,
 											this->_machOSection->addr(), this->_machOSection->size());
 	}
-	return 0; 
+	return 0;
 }
 
 template <typename A>
@@ -4766,7 +4774,7 @@ uint32_t CFISection<A>::cfiCount(Parser<A>& parser)
 {
 	// create ObjectAddressSpace object for use by libunwind
 	OAS oas(*this, (uint8_t*)this->file().fileContent()+this->_machOSection->offset());
-	return libunwind::CFI_Parser<OAS>::getCFICount(oas, 
+	return libunwind::CFI_Parser<OAS>::getCFICount(oas,
 										this->_machOSection->addr(), this->_machOSection->size());
 }
 
@@ -4774,7 +4782,7 @@ template <typename A>
 void CFISection<A>::warnFunc(void* ref, uint64_t funcAddr, const char* msg)
 {
 	Parser<A>* parser = (Parser<A>*)ref;
-	if ( ! parser->warnUnwindConversionProblems() ) 
+	if ( ! parser->warnUnwindConversionProblems() )
 		return;
 	if ( funcAddr != CFI_INVALID_ADDRESS ) {
 		// atoms are not constructed yet, so scan symbol table for labels
@@ -4827,7 +4835,7 @@ void CFISection<x86_64>::cfiParse(class Parser<x86_64>& parser, uint8_t* buffer,
 	for (const macho_relocation_info<P>* reloc = relocs; reloc < relocsEnd; ++reloc) {
 		uint64_t value = 0;
 		switch ( reloc->r_type() ) {
-			case X86_64_RELOC_SUBTRACTOR:	
+			case X86_64_RELOC_SUBTRACTOR:
 				value =  0 - parser.symbolFromIndex(reloc->r_symbolnum()).n_value();
 				++reloc;
 				if ( reloc->r_extern() )
@@ -4863,43 +4871,69 @@ void CFISection<x86_64>::cfiParse(class Parser<x86_64>& parser, uint8_t* buffer,
 				break;
 		}
 	}
-	
+
 	// create ObjectAddressSpace object for use by libunwind
 	OAS oas(*this, buffer);
-	
+
 	// use libuwind to parse __eh_frame data into array of CFI_Atom_Info
 	const char* msg;
 	msg = libunwind::DwarfInstructions<OAS, libunwind::Registers_x86_64>::parseCFIs(
-							oas, this->_machOSection->addr(), this->_machOSection->size(), 
-							cuStarts, cuCount, parser.keepDwarfUnwind(), parser.forceDwarfConversion(), parser.neverConvertDwarf(), 
+							oas, this->_machOSection->addr(), this->_machOSection->size(),
+							cuStarts, cuCount, parser.keepDwarfUnwind(), parser.forceDwarfConversion(), parser.neverConvertDwarf(),
 							cfiArray, count, (void*)&parser, warnFunc);
-	if ( msg != NULL ) 
+	if ( msg != NULL )
 		throwf("malformed __eh_frame section: %s", msg);
 }
 
 template <>
-void CFISection<x86>::cfiParse(class Parser<x86>& parser, uint8_t* buffer, 
+void CFISection<x86>::cfiParse(class Parser<x86>& parser, uint8_t* buffer,
 									libunwind::CFI_Atom_Info<CFISection<x86>::OAS> cfiArray[],
 									uint32_t& count, const pint_t cuStarts[], uint32_t cuCount)
 {
 	// create ObjectAddressSpace object for use by libunwind
 	OAS oas(*this, (uint8_t*)this->file().fileContent()+this->_machOSection->offset());
-	
+
 	// use libuwind to parse __eh_frame data into array of CFI_Atom_Info
 	const char* msg;
 	msg = libunwind::DwarfInstructions<OAS, libunwind::Registers_x86>::parseCFIs(
-							oas, this->_machOSection->addr(), this->_machOSection->size(), 
+							oas, this->_machOSection->addr(), this->_machOSection->size(),
 							cuStarts, cuCount, parser.keepDwarfUnwind(), parser.forceDwarfConversion(), parser.neverConvertDwarf(),
 							cfiArray, count, (void*)&parser, warnFunc);
-	if ( msg != NULL ) 
+	if ( msg != NULL )
 		throwf("malformed __eh_frame section: %s", msg);
 }
 
+// need to change libunwind parseCFIs() to work for ppc
+template <>
+void CFISection<ppc>::cfiParse(class Parser<ppc>& parser, uint8_t* buffer,
+									libunwind::CFI_Atom_Info<CFISection<ppc>::OAS> cfiArray[],
+									uint32_t &count, const pint_t cuStarts[], uint32_t cuCount)
+{
+	// create ObjectAddressSpace object for use by libunwind
+	OAS oas(*this, (uint8_t*)this->file().fileContent()+this->_machOSection->offset());
 
+	// use libuwind to parse __eh_frame data into array of CFI_Atom_Info
+	const char* msg;
+	msg = libunwind::DwarfInstructions<OAS, libunwind::Registers_ppc>::parseCFIs(
+							oas, this->_machOSection->addr(), this->_machOSection->size(),
+							cuStarts, cuCount, parser.keepDwarfUnwind(), parser.forceDwarfConversion(), parser.neverConvertDwarf(),
+							cfiArray, count, (void*)&parser, warnFunc);
+	if ( msg != NULL )
+		throwf("malformed __eh_frame section: %s", msg);
+}
+
+template <>
+void CFISection<ppc64>::cfiParse(class Parser<ppc64>& parser, uint8_t* buffer,
+								 libunwind::CFI_Atom_Info<CFISection<ppc64>::OAS> cfiArray[],
+								 uint32_t& count, const pint_t cuStarts[], uint32_t cuCount)
+{
+	// libunwind does not support ppc64
+	assert(count == 0);
+}
 
 
 template <>
-void CFISection<arm>::cfiParse(class Parser<arm>& parser, uint8_t* buffer, 
+void CFISection<arm>::cfiParse(class Parser<arm>& parser, uint8_t* buffer,
 									libunwind::CFI_Atom_Info<CFISection<arm>::OAS> cfiArray[],
 									uint32_t& count, const pint_t cuStarts[], uint32_t cuCount)
 {
@@ -4910,21 +4944,21 @@ void CFISection<arm>::cfiParse(class Parser<arm>& parser, uint8_t* buffer,
 	}
 	// create ObjectAddressSpace object for use by libunwind
 	OAS oas(*this, (uint8_t*)this->file().fileContent()+this->_machOSection->offset());
-	
+
 	// use libuwind to parse __eh_frame data into array of CFI_Atom_Info
 	const char* msg;
 	msg = libunwind::DwarfInstructions<OAS, libunwind::Registers_arm>::parseCFIs(
-							oas, this->_machOSection->addr(), this->_machOSection->size(), 
+							oas, this->_machOSection->addr(), this->_machOSection->size(),
 							cuStarts, cuCount, parser.keepDwarfUnwind(), parser.forceDwarfConversion(), parser.neverConvertDwarf(),
 							cfiArray, count, (void*)&parser, warnFunc);
-	if ( msg != NULL ) 
+	if ( msg != NULL )
 		throwf("malformed __eh_frame section: %s", msg);
 }
 
 
 
 template <>
-void CFISection<arm64>::cfiParse(class Parser<arm64>& parser, uint8_t* buffer, 
+void CFISection<arm64>::cfiParse(class Parser<arm64>& parser, uint8_t* buffer,
 									libunwind::CFI_Atom_Info<CFISection<arm64>::OAS> cfiArray[],
 									uint32_t& count, const pint_t cuStarts[], uint32_t cuCount)
 {
@@ -4938,11 +4972,11 @@ void CFISection<arm64>::cfiParse(class Parser<arm64>& parser, uint8_t* buffer,
 	for (const macho_relocation_info<P>* reloc = relocs; reloc < relocsEnd; ++reloc) {
 		uint64_t* p64 = (uint64_t*)&buffer[reloc->r_address()];
 		uint32_t* p32 = (uint32_t*)&buffer[reloc->r_address()];
-		uint32_t addend32 = E::get32(*p32); 
-		uint64_t addend64 = E::get64(*p64); 
+		uint32_t addend32 = E::get32(*p32);
+		uint64_t addend64 = E::get64(*p64);
 		uint64_t value = 0;
 		switch ( reloc->r_type() ) {
-			case ARM64_RELOC_SUBTRACTOR:	
+			case ARM64_RELOC_SUBTRACTOR:
 				value =  0 - parser.symbolFromIndex(reloc->r_symbolnum()).n_value();
 				++reloc;
 				if ( reloc->r_extern() )
@@ -4976,25 +5010,25 @@ void CFISection<arm64>::cfiParse(class Parser<arm64>& parser, uint8_t* buffer,
 				break;
 		}
 	}
-	
-	
+
+
 	// create ObjectAddressSpace object for use by libunwind
 	OAS oas(*this, buffer);
-	
+
 	// use libuwind to parse __eh_frame data into array of CFI_Atom_Info
 	const char* msg;
 	msg = libunwind::DwarfInstructions<OAS, libunwind::Registers_arm64>::parseCFIs(
-							oas, this->_machOSection->addr(), this->_machOSection->size(), 
+							oas, this->_machOSection->addr(), this->_machOSection->size(),
 							cuStarts, cuCount, parser.keepDwarfUnwind(), parser.forceDwarfConversion(), parser.neverConvertDwarf(),
 							cfiArray, count, (void*)&parser, warnFunc);
-	if ( msg != NULL ) 
+	if ( msg != NULL )
 		throwf("malformed __eh_frame section: %s", msg);
 }
 
 
 #if SUPPORT_ARCH_arm64_32
 template <>
-void CFISection<arm64_32>::cfiParse(class Parser<arm64_32>& parser, uint8_t* buffer, 
+void CFISection<arm64_32>::cfiParse(class Parser<arm64_32>& parser, uint8_t* buffer,
 									libunwind::CFI_Atom_Info<CFISection<arm64_32>::OAS> cfiArray[],
 									uint32_t& count, const pint_t cuStarts[], uint32_t cuCount)
 {
@@ -5007,11 +5041,11 @@ void CFISection<arm64_32>::cfiParse(class Parser<arm64_32>& parser, uint8_t* buf
 	for (const macho_relocation_info<P>* reloc = relocs; reloc < relocsEnd; ++reloc) {
 		uint64_t* p64 = (uint64_t*)&buffer[reloc->r_address()];
 		uint32_t* p32 = (uint32_t*)&buffer[reloc->r_address()];
-		uint32_t addend32 = E::get32(*p32); 
-		uint64_t addend64 = E::get64(*p64); 
+		uint32_t addend32 = E::get32(*p32);
+		uint64_t addend64 = E::get64(*p64);
 		uint64_t value = 0;
 		switch ( reloc->r_type() ) {
-			case ARM64_RELOC_SUBTRACTOR:	
+			case ARM64_RELOC_SUBTRACTOR:
 				value =  0 - parser.symbolFromIndex(reloc->r_symbolnum()).n_value();
 				++reloc;
 				if ( reloc->r_extern() )
@@ -5043,25 +5077,25 @@ void CFISection<arm64_32>::cfiParse(class Parser<arm64_32>& parser, uint8_t* buf
 				break;
 		}
 	}
-	
-	
+
+
 	// create ObjectAddressSpace object for use by libunwind
 	OAS oas(*this, buffer);
-	
+
 	// use libuwind to parse __eh_frame data into array of CFI_Atom_Info
 	const char* msg;
 	msg = libunwind::DwarfInstructions<OAS, libunwind::Registers_arm64>::parseCFIs(
-							oas, this->_machOSection->addr(), this->_machOSection->size(), 
+							oas, this->_machOSection->addr(), this->_machOSection->size(),
 							cuStarts, cuCount, parser.keepDwarfUnwind(), parser.forceDwarfConversion(), parser.neverConvertDwarf(),
 							cfiArray, count, (void*)&parser, warnFunc);
-	if ( msg != NULL ) 
+	if ( msg != NULL )
 		throwf("malformed __eh_frame section: %s", msg);
 }
 #endif
 
 template <typename A>
-uint32_t CFISection<A>::computeAtomCount(class Parser<A>& parser, 
-											struct Parser<A>::LabelAndCFIBreakIterator& it, 
+uint32_t CFISection<A>::computeAtomCount(class Parser<A>& parser,
+											struct Parser<A>::LabelAndCFIBreakIterator& it,
 											const struct Parser<A>::CFI_CU_InfoArrays& cfis)
 {
 	return cfis.cfiCount;
@@ -5070,8 +5104,8 @@ uint32_t CFISection<A>::computeAtomCount(class Parser<A>& parser,
 
 
 template <typename A>
-uint32_t CFISection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p, 
-									struct Parser<A>::LabelAndCFIBreakIterator& it, 
+uint32_t CFISection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p,
+									struct Parser<A>::LabelAndCFIBreakIterator& it,
 									const struct Parser<A>::CFI_CU_InfoArrays& cfis)
 {
 	this->_beginAtoms = (Atom<A>*)p;
@@ -5080,9 +5114,9 @@ uint32_t CFISection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p,
 	const CFI_Atom_Info* end   = &cfis.cfiArray[cfis.cfiCount];
 	for(const CFI_Atom_Info* a=start; a < end; ++a) {
 		Atom<A>* space = (Atom<A>*)p;
-		new (space) Atom<A>(*this, (a->isCIE ? "CIE" : "FDE"), a->address, a->size, 
+		new (space) Atom<A>(*this, (a->isCIE ? "CIE" : "FDE"), a->address, a->size,
 										ld::Atom::definitionRegular, ld::Atom::combineNever, ld::Atom::scopeTranslationUnit,
-										ld::Atom::typeCFI, ld::Atom::symbolTableNotInFinalLinkedImages, 
+										ld::Atom::typeCFI, ld::Atom::symbolTableNotInFinalLinkedImages,
 										false, false, false, ld::Atom::Alignment(0));
 		p += sizeof(Atom<A>);
 	}
@@ -5091,6 +5125,8 @@ uint32_t CFISection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p,
 }
 
 
+template <> bool CFISection<ppc>::bigEndian() { return true; }
+template <> bool CFISection<ppc64>::bigEndian() { return true; }
 template <> bool CFISection<x86_64>::bigEndian() { return false; }
 template <> bool CFISection<x86>::bigEndian() { return false; }
 template <> bool CFISection<arm>::bigEndian() { return false; }
@@ -5106,7 +5142,7 @@ void CFISection<x86_64>::addCiePersonalityFixups(class Parser<x86_64>& parser, c
 	if ( personalityEncoding == 0x9B ) {
 		// compiler always produces X86_64_RELOC_GOT with addend of 4 to personality function
 		// CFISection<x86_64>::cfiParse() set targetAddress to be symbolIndex + 4 + addressInCIE
-		uint32_t symbolIndex = cieInfo->u.cieInfo.personality.targetAddress - 4 
+		uint32_t symbolIndex = cieInfo->u.cieInfo.personality.targetAddress - 4
 									- cieInfo->address - cieInfo->u.cieInfo.personality.offsetInCFI;
 		const macho_nlist<P>& sym = parser.symbolFromIndex(symbolIndex);
 		const char* personalityName = parser.nameFromSymbol(sym);
@@ -5118,7 +5154,7 @@ void CFISection<x86_64>::addCiePersonalityFixups(class Parser<x86_64>& parser, c
 		parser.addFixup(src, ld::Fixup::k3of3, ld::Fixup::kindStoreX86PCRel32GOT);
 	}
 	else if ( personalityEncoding != 0 ) {
-		throwf("unsupported address encoding (%02X) of personality function in CIE", 
+		throwf("unsupported address encoding (%02X) of personality function in CIE",
 				personalityEncoding);
 	}
 }
@@ -5145,6 +5181,29 @@ void CFISection<x86>::addCiePersonalityFixups(class Parser<x86>& parser, const C
 	}
 }
 
+template <>
+void CFISection<ppc>::addCiePersonalityFixups(class Parser<ppc>& parser, const CFI_Atom_Info* cieInfo)
+{
+	uint8_t personalityEncoding = cieInfo->u.cieInfo.personality.encodingOfTargetAddress;
+	if ( (personalityEncoding == 0x9B) || (personalityEncoding == 0x90) ) {
+		uint32_t offsetInCFI = cieInfo->u.cieInfo.personality.offsetInCFI;
+		uint32_t nlpAddr = cieInfo->u.cieInfo.personality.targetAddress;
+		Atom<ppc>* cieAtom = this->findAtomByAddress(cieInfo->address);
+		Atom<ppc>* nlpAtom = parser.findAtomByAddress(nlpAddr);
+		assert(nlpAtom->contentType() == ld::Atom::typeNonLazyPointer);
+		Parser<ppc>::SourceLocation src(cieAtom, cieInfo->u.cieInfo.personality.offsetInCFI);
+
+		parser.addFixup(src, ld::Fixup::k1of4, ld::Fixup::kindSetTargetAddress, ld::Fixup::bindingByContentBound, nlpAtom);
+		parser.addFixup(src, ld::Fixup::k2of4, ld::Fixup::kindSubtractTargetAddress, cieAtom);
+		parser.addFixup(src, ld::Fixup::k3of4, ld::Fixup::kindSubtractAddend, offsetInCFI);
+		parser.addFixup(src, ld::Fixup::k4of4, ld::Fixup::kindStoreBigEndian32);
+	}
+	else if ( personalityEncoding != 0 ) {
+		throwf("unsupported address encoding (%02X) of personality function in CIE",
+					personalityEncoding);
+	}
+}
+
 #if SUPPORT_ARCH_arm64
 template <>
 void CFISection<arm64>::addCiePersonalityFixups(class Parser<arm64>& parser, const CFI_Atom_Info* cieInfo)
@@ -5153,7 +5212,7 @@ void CFISection<arm64>::addCiePersonalityFixups(class Parser<arm64>& parser, con
 	if ( personalityEncoding == 0x9B ) {
 		// compiler always produces ARM64_RELOC_GOT r_pcrel=1 to personality function
 		// CFISection<arm64>::cfiParse() set targetAddress to be symbolIndex + addressInCIE
-		uint32_t symbolIndex = cieInfo->u.cieInfo.personality.targetAddress 
+		uint32_t symbolIndex = cieInfo->u.cieInfo.personality.targetAddress
 									- cieInfo->address - cieInfo->u.cieInfo.personality.offsetInCFI;
 		const macho_nlist<P>& sym = parser.symbolFromIndex(symbolIndex);
 		const char* personalityName = parser.nameFromSymbol(sym);
@@ -5164,7 +5223,7 @@ void CFISection<arm64>::addCiePersonalityFixups(class Parser<arm64>& parser, con
 		parser.addFixup(src, ld::Fixup::k2of2, ld::Fixup::kindStoreARM64PCRelToGOT);
 	}
 	else if ( personalityEncoding != 0 ) {
-		throwf("unsupported address encoding (%02X) of personality function in CIE", 
+		throwf("unsupported address encoding (%02X) of personality function in CIE",
 				personalityEncoding);
 	}
 }
@@ -5178,7 +5237,7 @@ void CFISection<arm64_32>::addCiePersonalityFixups(class Parser<arm64_32>& parse
 	if ( personalityEncoding == 0x9B ) {
 		// compiler always produces ARM64_RELOC_GOT r_pcrel=1 to personality function
 		// CFISection<arm64>::cfiParse() set targetAddress to be symbolIndex + addressInCIE
-		uint32_t symbolIndex = cieInfo->u.cieInfo.personality.targetAddress 
+		uint32_t symbolIndex = cieInfo->u.cieInfo.personality.targetAddress
 									- cieInfo->address - cieInfo->u.cieInfo.personality.offsetInCFI;
 		const macho_nlist<P>& sym = parser.symbolFromIndex(symbolIndex);
 		const char* personalityName = parser.nameFromSymbol(sym);
@@ -5189,7 +5248,7 @@ void CFISection<arm64_32>::addCiePersonalityFixups(class Parser<arm64_32>& parse
 		parser.addFixup(src, ld::Fixup::k2of2, ld::Fixup::kindStoreARM64PCRelToGOT);
 	}
 	else if ( personalityEncoding != 0 ) {
-		throwf("unsupported address encoding (%02X) of personality function in CIE", 
+		throwf("unsupported address encoding (%02X) of personality function in CIE",
 				personalityEncoding);
 	}
 }
@@ -5280,7 +5339,7 @@ void CFISection<A>::makeFixups(class Parser<A>& parser, const struct Parser<A>::
 				default:
 					throw "unsupported encoding in FDE of pointer to function";
 			}
-		
+
 			// add reference from FDE to LSDA
 			typename Parser<A>::SourceLocation fdeToLsdaSrc(fdeAtom,  p->u.fdeInfo.lsda.offsetInCFI);
 			if ( lsdaAtom != NULL ) {
@@ -5304,11 +5363,11 @@ void CFISection<A>::makeFixups(class Parser<A>& parser, const struct Parser<A>::
 						throw "unsupported encoding in FDE of pointer to LSDA";
 				}
 			}
-			
+
 			// FDE is in group lead by function atom
 			typename Parser<A>::SourceLocation fdeSrc(functionAtom,0);
 			parser.addFixup(fdeSrc, ld::Fixup::k1of1, ld::Fixup::kindNoneGroupSubordinateFDE, fdeAtom);
-			
+
 			// LSDA is in group lead by function atom
 			if ( lsdaAtom != NULL ) {
 				parser.addFixup(fdeSrc, ld::Fixup::k1of1, ld::Fixup::kindNoneGroupSubordinateLSDA, lsdaAtom);
@@ -5341,7 +5400,7 @@ const void*	 CFISection<A>::OAS::mappedAddress(pint_t addr)
 		throwf("__eh_frame parsing problem.  Can't find target of reference to address 0x%08llX", (uint64_t)addr);
 	}
 }
-		
+
 
 template <typename A>
 uint64_t CFISection<A>::OAS::getULEB128(pint_t& logicalAddr, pint_t end)
@@ -5418,7 +5477,7 @@ typename A::P::uint_t CFISection<A>::OAS::getEncodedP(pint_t& addr, pint_t end, 
 		default:
 			throwf("ObjectFileAddressSpace<A>::getEncodedP() encoding 0x%08X not supported", encoding);
 	}
-	
+
 	// then add relative offset
 	switch ( encoding & 0x70 ) {
 		case DW_EH_PE_absptr:
@@ -5449,7 +5508,7 @@ typename A::P::uint_t CFISection<A>::OAS::getEncodedP(pint_t& addr, pint_t end, 
 //  Instead we skip the dereference and return the address of the pointer.
 //	if ( encoding & DW_EH_PE_indirect )
 //		result = getP(result);
-	
+
 	return result;
 }
 
@@ -5578,6 +5637,18 @@ const char* CUSection<A>::personalityName(class Parser<A>& parser, const macho_r
 }
 
 template <>
+bool CUSection<ppc>::encodingMeansUseDwarf(compact_unwind_encoding_t enc)
+{
+	return ((enc & UNWIND_PPC_MODE_MASK) == UNWIND_PPC_MODE_DWARF);
+}
+
+template <>
+bool CUSection<ppc64>::encodingMeansUseDwarf(compact_unwind_encoding_t enc)
+{
+	return ((enc & UNWIND_PPC_MODE_MASK) == UNWIND_PPC_MODE_DWARF);
+}
+
+template <>
 bool CUSection<x86>::encodingMeansUseDwarf(compact_unwind_encoding_t enc)
 {
 	return ((enc & UNWIND_X86_MODE_MASK) == UNWIND_X86_MODE_DWARF);
@@ -5616,7 +5687,7 @@ bool CUSection<arm64_32>::encodingMeansUseDwarf(compact_unwind_encoding_t enc)
 template <typename A>
 int CUSection<A>::infoSorter(const void* l, const void* r)
 {
-	// sort references by symbol index, then address 
+	// sort references by symbol index, then address
 	const Info* left = (Info*)l;
 	const Info* right = (Info*)r;
 	if ( left->functionSymbolIndex == right->functionSymbolIndex )
@@ -5647,7 +5718,7 @@ void CUSection<A>::parse(class Parser<A>& parser, uint32_t cnt, Info array[])
 			info->compactUnwindInfo |= UNWIND_HAS_LSDA;
 		}
 	}
-	
+
 	// scan relocs, extern relocs are needed for personality references (possibly for function/lsda refs??)
 	const uint32_t sectionSize = this->_machOSection->size();
 	if ( this->_machOSection->reloff() > parser.fileLength() )
@@ -5663,19 +5734,19 @@ void CUSection<A>::parse(class Parser<A>& parser, uint32_t cnt, Info array[])
 			throwf("malformed __compact_unwind relocation, offset (0x%08X) is beyond end of section,", reloc->r_address());
 		if ( reloc->r_extern() ) {
 			// only expect external relocs on some colummns
-			if ( (reloc->r_address() % sizeof(macho_compact_unwind_entry<P>)) == macho_compact_unwind_entry<P>::personalityFieldOffset() ) {
+			if ( (reloc->r_address() % sizeof(macho_compact_unwind_entry<P>)) == offsetof(macho_compact_unwind_entry<P>,_personality) ) {
 				uint32_t entryIndex = reloc->r_address() / sizeof(macho_compact_unwind_entry<P>);
 				array[entryIndex].personality = this->personalityName(parser, reloc);
 			}
-			else if ( (reloc->r_address() % sizeof(macho_compact_unwind_entry<P>)) == macho_compact_unwind_entry<P>::lsdaFieldOffset() ) {
+			else if ( (reloc->r_address() % sizeof(macho_compact_unwind_entry<P>)) == offsetof(macho_compact_unwind_entry<P>,_lsda) ) {
 				uint32_t entryIndex = reloc->r_address() / sizeof(macho_compact_unwind_entry<P>);
 				const macho_nlist<P>& lsdaSym = parser.symbolFromIndex(reloc->r_symbolnum());
-				if ( (lsdaSym.n_type() & N_TYPE) == N_SECT ) 
+				if ( (lsdaSym.n_type() & N_TYPE) == N_SECT )
 					array[entryIndex].lsdaAddress = lsdaSym.n_value();
 				else
 					warning("unexpected extern relocation to lsda in __compact_unwind section");
 			}
-			else if ( (reloc->r_address() % sizeof(macho_compact_unwind_entry<P>)) == macho_compact_unwind_entry<P>::codeStartFieldOffset() ) {
+			else if ( (reloc->r_address() % sizeof(macho_compact_unwind_entry<P>)) == offsetof(macho_compact_unwind_entry<P>,_codeStart) ) {
 				uint32_t entryIndex = reloc->r_address() / sizeof(macho_compact_unwind_entry<P>);
 				array[entryIndex].functionSymbolIndex = reloc->r_symbolnum();
 				array[entryIndex].functionStartAddress += parser.symbolFromIndex(reloc->r_symbolnum()).n_value();
@@ -5685,13 +5756,13 @@ void CUSection<A>::parse(class Parser<A>& parser, uint32_t cnt, Info array[])
 			}
 		}
 		else {
-			if ( (reloc->r_address() % sizeof(macho_compact_unwind_entry<P>)) == macho_compact_unwind_entry<P>::personalityFieldOffset() ) {
+			if ( (reloc->r_address() % sizeof(macho_compact_unwind_entry<P>)) == offsetof(macho_compact_unwind_entry<P>,_personality) ) {
 				uint32_t entryIndex = reloc->r_address() / sizeof(macho_compact_unwind_entry<P>);
 				array[entryIndex].personality = this->personalityName(parser, reloc);
 			}
 		}
 	}
-	
+
 	// sort array by function start address so unwind infos will be contiguous for a given function
 	::qsort(array, cnt, sizeof(Info), infoSorter);
 }
@@ -5702,7 +5773,7 @@ uint32_t CUSection<A>::count()
 	const macho_section<P>*	machoSect =	this->machoSection();
 	if ( (machoSect->size() % sizeof(macho_compact_unwind_entry<P>)) != 0 )
 		throw "malformed __LD,__compact_unwind section, bad length";
-		
+
 	return machoSect->size() / sizeof(macho_compact_unwind_entry<P>);
 }
 
@@ -5713,10 +5784,10 @@ void CUSection<A>::makeFixups(class Parser<A>& parser, const struct Parser<A>::C
 	Info* const arrayEnd = &cus.cuArray[cus.cuCount];
 	for (Info* info=arrayStart; info < arrayEnd; ++info) {
 		// find function atom from address
-		info->function = parser.findAtomByAddress(info->functionStartAddress);	
+		info->function = parser.findAtomByAddress(info->functionStartAddress);
 		// find lsda atom from address
 		if ( info->lsdaAddress != 0 ) {
-			info->lsda = parser.findAtomByAddress(info->lsdaAddress);		
+			info->lsda = parser.findAtomByAddress(info->lsdaAddress);
 			// add lsda subordinate
 			typename Parser<A>::SourceLocation src(info->function, info->functionStartAddress - info->function->objectAddress());
 			parser.addFixup(src, ld::Fixup::k1of1, ld::Fixup::kindNoneGroupSubordinateLSDA, info->lsda);
@@ -5727,12 +5798,12 @@ void CUSection<A>::makeFixups(class Parser<A>& parser, const struct Parser<A>::C
 			parser.addFixup(src, ld::Fixup::k1of1, ld::Fixup::kindNoneGroupSubordinatePersonality, false, info->personality);
 		}
 	}
-	
+
 }
 
 template <typename A>
 SymboledSection<A>::SymboledSection(Parser<A>& parser, File<A>& f, const macho_section<typename A::P>* s)
-	: Section<A>(f, s), _type(ld::Atom::typeUnclassified) 
+	: Section<A>(f, s), _type(ld::Atom::typeUnclassified)
 {
 	switch ( s->flags() & SECTION_TYPE ) {
 		case S_ZEROFILL:
@@ -5770,7 +5841,7 @@ SymboledSection<A>::SymboledSection(Parser<A>& parser, File<A>& f, const macho_s
 
 
 template <typename A>
-bool SymboledSection<A>::dontDeadStrip() 
+bool SymboledSection<A>::dontDeadStrip()
 {
 	switch ( _type ) {
 		case ld::Atom::typeInitializerPointers:
@@ -5788,8 +5859,8 @@ bool SymboledSection<A>::dontDeadStrip()
 
 
 template <typename A>
-uint32_t SymboledSection<A>::computeAtomCount(class Parser<A>& parser, 
-												struct Parser<A>::LabelAndCFIBreakIterator& it, 
+uint32_t SymboledSection<A>::computeAtomCount(class Parser<A>& parser,
+												struct Parser<A>::LabelAndCFIBreakIterator& it,
 												const struct Parser<A>::CFI_CU_InfoArrays&)
 {
 	const pint_t startAddr = this->_machOSection->addr();
@@ -5808,7 +5879,7 @@ uint32_t SymboledSection<A>::computeAtomCount(class Parser<A>& parser,
 }
 
 template <typename A>
-uint32_t SymboledSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p, 
+uint32_t SymboledSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p,
 											struct Parser<A>::LabelAndCFIBreakIterator& it,
 											const struct Parser<A>::CFI_CU_InfoArrays&)
 {
@@ -5843,7 +5914,7 @@ uint32_t SymboledSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p,
 			if ( ctype == ld::Atom::typeLSDA )
 				inclusion = ld::Atom::symbolTableInWithRandomAutoStripLabel;
 			new (allocatedSpace) Atom<A>(*this, "anon", addr, size, ld::Atom::definitionRegular, ld::Atom::combineNever,
-										ld::Atom::scopeTranslationUnit, ctype, inclusion, 
+										ld::Atom::scopeTranslationUnit, ctype, inclusion,
 										this->dontDeadStrip(), false, false, this->alignmentForAddress(addr));
 		}
 		p += sizeof(Atom<A>);
@@ -5877,8 +5948,8 @@ ld::Atom::SymbolTableInclusion ImplicitSizeSection<A>::symbolTableInclusion()
 
 
 template <typename A>
-uint32_t ImplicitSizeSection<A>::computeAtomCount(class Parser<A>& parser, 
-													struct Parser<A>::LabelAndCFIBreakIterator& it, 
+uint32_t ImplicitSizeSection<A>::computeAtomCount(class Parser<A>& parser,
+													struct Parser<A>::LabelAndCFIBreakIterator& it,
 													const struct Parser<A>::CFI_CU_InfoArrays&)
 {
 	uint32_t count = 0;
@@ -5886,7 +5957,7 @@ uint32_t ImplicitSizeSection<A>::computeAtomCount(class Parser<A>& parser,
 	const pint_t startAddr = sect->addr();
 	const pint_t endAddr = startAddr + sect->size();
 	for (pint_t addr = startAddr; addr < endAddr; addr += elementSizeAtAddress(addr) ) {
-		if ( useElementAt(parser, it, addr) ) 
+		if ( useElementAt(parser, it, addr) )
 			++count;
 	}
 	if ( it.fileHasOverlappingSymbols && (sect->size() != 0) && (this->combine(parser, startAddr) == ld::Atom::combineByNameAndContent) ) {
@@ -5899,7 +5970,7 @@ uint32_t ImplicitSizeSection<A>::computeAtomCount(class Parser<A>& parser,
 			const pint_t symbolAddr = sym.n_value();
 			const uint8_t symbolSectNum = sym.n_sect();
 			const bool ignore = this->ignoreLabel(parser.nameFromSymbol(sym));
-			if ( !ignore && !prevIgnore && (symbolAddr == prevSymbolAddr) && (prevSymbolSectNum == symbolSectNum) && (symbolSectNum == this->sectionNum(parser)) ) { 
+			if ( !ignore && !prevIgnore && (symbolAddr == prevSymbolAddr) && (prevSymbolSectNum == symbolSectNum) && (symbolSectNum == this->sectionNum(parser)) ) {
 				++count;
 			}
 			prevSymbolAddr = symbolAddr;
@@ -5911,12 +5982,12 @@ uint32_t ImplicitSizeSection<A>::computeAtomCount(class Parser<A>& parser,
 }
 
 template <typename A>
-uint32_t ImplicitSizeSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p, 
-											struct Parser<A>::LabelAndCFIBreakIterator& it, 
+uint32_t ImplicitSizeSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p,
+											struct Parser<A>::LabelAndCFIBreakIterator& it,
 											const struct Parser<A>::CFI_CU_InfoArrays&)
 {
 	this->_beginAtoms = (Atom<A>*)p;
-	
+
 	const macho_section<P>* sect = this->machoSection();
 	const pint_t startAddr = sect->addr();
 	const pint_t endAddr = startAddr + sect->size();
@@ -5934,17 +6005,17 @@ uint32_t ImplicitSizeSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p
 			allocatedSpace = (Atom<A>*)p;
 			if ( this->ignoreLabel(parser.nameFromSymbol(*foundLabel)) ) {
 				if ( size == 0 ) {
-					// <rdar://problem/10018737> 
-					// a size of zero means there is another label at same location 
+					// <rdar://problem/10018737>
+					// a size of zero means there is another label at same location
 					// and we are supposed to ignore this label
 					skip = true;
 				}
 				else {
 					//fprintf(stderr, "  0x%08llX make annon, size=%lld\n", (uint64_t)foundAddr, (uint64_t)size);
-					new (allocatedSpace) Atom<A>(*this, this->unlabeledAtomName(parser, foundAddr), foundAddr, 
-											this->elementSizeAtAddress(foundAddr), this->definition(), 
-											this->combine(parser, foundAddr), this->scopeAtAddress(parser, foundAddr), 
-											this->contentType(), this->symbolTableInclusion(), 
+					new (allocatedSpace) Atom<A>(*this, this->unlabeledAtomName(parser, foundAddr), foundAddr,
+											this->elementSizeAtAddress(foundAddr), this->definition(),
+											this->combine(parser, foundAddr), this->scopeAtAddress(parser, foundAddr),
+											this->contentType(), this->symbolTableInclusion(),
 											this->dontDeadStrip(), false, false, this->alignmentForAddress(foundAddr));
 				}
 			}
@@ -5966,9 +6037,9 @@ uint32_t ImplicitSizeSection<A>::appendAtoms(class Parser<A>& parser, uint8_t* p
 			if ( this->useElementAt(parser, it, addr) ) {
 				//fprintf(stderr, "  0x%08llX make annon, size=%lld\n", (uint64_t)addr, (uint64_t)elementSizeAtAddress(addr));
 				allocatedSpace = (Atom<A>*)p;
-				new (allocatedSpace) Atom<A>(*this, this->unlabeledAtomName(parser, addr), addr, this->elementSizeAtAddress(addr), 
-											this->definition(), this->combine(parser, addr), this->scopeAtAddress(parser, addr), 
-											this->contentType(), this->symbolTableInclusion(), 
+				new (allocatedSpace) Atom<A>(*this, this->unlabeledAtomName(parser, addr), addr, this->elementSizeAtAddress(addr),
+											this->definition(), this->combine(parser, addr), this->scopeAtAddress(parser, addr),
+											this->contentType(), this->symbolTableInclusion(),
 											this->dontDeadStrip(), false, false, this->alignmentForAddress(addr));
 				++count;
 				p += sizeof(Atom<A>);
@@ -5995,12 +6066,12 @@ unsigned long Literal4Section<A>::contentHash(const class Atom<A>* atom, const l
 }
 
 template <typename A>
-bool Literal4Section<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+bool Literal4Section<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const
 {
 	assert(this->type() == rhs.section().type());
 	const uint32_t* literalContent = (uint32_t*)atom->contentPointer();
-	
+
 	const Atom<A>* rhsAtom = dynamic_cast<const Atom<A>*>(&rhs);
 	assert(rhsAtom != NULL);
 	if ( rhsAtom != NULL ) {
@@ -6034,14 +6105,14 @@ unsigned long Literal8Section<A>::contentHash(const class Atom<A>* atom, const l
 }
 
 template <typename A>
-bool Literal8Section<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+bool Literal8Section<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const
 {
 	if ( rhs.section().type() != ld::Section::typeLiteral8 )
 		return false;
 	assert(this->type() == rhs.section().type());
 	const uint64_t* literalContent = (uint64_t*)atom->contentPointer();
-	
+
 	const Atom<A>* rhsAtom = dynamic_cast<const Atom<A>*>(&rhs);
 	assert(rhsAtom != NULL);
 	if ( rhsAtom != NULL ) {
@@ -6069,14 +6140,14 @@ unsigned long Literal16Section<A>::contentHash(const class Atom<A>* atom, const 
 }
 
 template <typename A>
-bool Literal16Section<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+bool Literal16Section<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const
 {
 	if ( rhs.section().type() != ld::Section::typeLiteral16 )
 		return false;
 	assert(this->type() == rhs.section().type());
 	const uint64_t* literalContent = (uint64_t*)atom->contentPointer();
-	
+
 	const Atom<A>* rhsAtom = dynamic_cast<const Atom<A>*>(&rhs);
 	assert(rhsAtom != NULL);
 	if ( rhsAtom != NULL ) {
@@ -6104,8 +6175,8 @@ bool CStringSection<A>::useElementAt(Parser<A>& parser, struct Parser<A>::LabelA
 
 template <typename A>
 bool CStringSection<A>::ignoreLabel(const char* label) const
-{ 
-	return (label[0] == 'L') || (label[0] == 'l'); 
+{
+	return (label[0] == 'L') || (label[0] == 'l');
 }
 
 
@@ -6129,7 +6200,7 @@ unsigned long CStringSection<A>::contentHash(const class Atom<A>* atom, const ld
 
 
 template <typename A>
-bool CStringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+bool CStringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const
 {
 	if ( rhs.section().type() != ld::Section::typeCString )
@@ -6138,7 +6209,7 @@ bool CStringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Ato
 	assert(strcmp(this->sectionName(), rhs.section().sectionName())== 0);
 	assert(strcmp(this->segmentName(), rhs.section().segmentName())== 0);
 	const char* stringContent = (char*)atom->contentPointer();
-	
+
 	const Atom<A>* rhsAtom = dynamic_cast<const Atom<A>*>(&rhs);
 	assert(rhsAtom != NULL);
 	if ( rhsAtom != NULL ) {
@@ -6161,6 +6232,18 @@ template <>
 ld::Fixup::Kind NonLazyPointerSection<arm>::fixupKind()
 {
 	return ld::Fixup::kindStoreLittleEndian32;
+}
+
+template <>
+ld::Fixup::Kind NonLazyPointerSection<ppc>::fixupKind()
+{
+	return ld::Fixup::kindStoreBigEndian32;
+}
+
+template <>
+ld::Fixup::Kind NonLazyPointerSection<ppc64>::fixupKind()
+{
+	return ld::Fixup::kindStoreBigEndian64;
 }
 
 template <>
@@ -6208,7 +6291,7 @@ void NonLazyPointerSection<A>::makeFixups(class Parser<A>& parser, const struct 
 			target.addend = (targetAddr - target.atom->objectAddress());
 			// <rdar://problem/8385011> if pointer to thumb function, mask of thumb bit (not an addend of +1)
 			if ( target.atom->isThumb() )
-				target.addend &= (-2); 
+				target.addend &= (-2);
 			assert(src.atom->combine() == ld::Atom::combineNever);
 		}
 		else {
@@ -6235,17 +6318,17 @@ ld::Atom::Combine NonLazyPointerSection<A>::combine(Parser<A>& parser, pint_t ad
 	uint32_t symIndex = parser.symbolIndexFromIndirectSectionAddress(addr, sect);
 	if ( symIndex == INDIRECT_SYMBOL_LOCAL)
 		return ld::Atom::combineNever;
-		
+
 	// don't coalesce non-lazy-pointers to local symbols
 	const macho_nlist<P>& sym = parser.symbolFromIndex(symIndex);
-	if ( ((sym.n_type() & N_TYPE) == N_SECT) && ((sym.n_type() & N_EXT) == 0) ) 
+	if ( ((sym.n_type() & N_TYPE) == N_SECT) && ((sym.n_type() & N_EXT) == 0) )
 		return ld::Atom::combineNever;
-	
+
 	return ld::Atom::combineByNameAndReferences;
 }
 
 template <typename A>
-const char* NonLazyPointerSection<A>::targetName(const class Atom<A>* atom, const ld::IndirectBindingTable& ind) 
+const char* NonLazyPointerSection<A>::targetName(const class Atom<A>* atom, const ld::IndirectBindingTable& ind)
 {
 	assert(atom->combine() == ld::Atom::combineByNameAndReferences);
 	assert(atom->fixupCount() == 1);
@@ -6280,7 +6363,7 @@ unsigned long NonLazyPointerSection<A>::contentHash(const class Atom<A>* atom, c
 }
 
 template <typename A>
-bool NonLazyPointerSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+bool NonLazyPointerSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& indirectBindingTable) const
 {
 	if ( rhs.section().type() != ld::Section::typeNonLazyPointer )
@@ -6299,13 +6382,13 @@ bool NonLazyPointerSection<A>::canCoalesceWith(const class Atom<A>* atom, const 
 
 template <typename A>
 ld::Atom::Scope NonLazyPointerSection<A>::scopeAtAddress(Parser<A>& parser, pint_t addr)
-{ 
+{
 	const macho_section<P>* sect = this->machoSection();
 	uint32_t symIndex = parser.symbolIndexFromIndirectSectionAddress(addr, sect);
 	if ( symIndex == INDIRECT_SYMBOL_LOCAL)
 		return ld::Atom::scopeTranslationUnit;
 	else
-		return ld::Atom::scopeLinkageUnit; 
+		return ld::Atom::scopeLinkageUnit;
 }
 
 
@@ -6498,7 +6581,7 @@ unsigned long CFStringSection<A>::contentHash(const class Atom<A>* atom, const l
 
 
 template <typename A>
-bool CFStringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+bool CFStringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& indirectBindingTable) const
 {
 	if ( atom == &rhs )
@@ -6507,7 +6590,7 @@ bool CFStringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::At
 		return false;
 	assert(this->type() == rhs.section().type());
 	assert(strcmp(this->sectionName(), "__cfstring") == 0);
-	
+
 	ContentType thisType;
 	unsigned int charCount;
 	const uint8_t* cstringContent = this->targetContent(atom, indirectBindingTable, &thisType, &charCount);
@@ -6527,9 +6610,9 @@ bool CFStringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::At
 		return false;
 
 	// no need to compare content of pointers are already the same
-	if ( cstringContent == rhsStringContent ) 
+	if ( cstringContent == rhsStringContent )
 		return true;
-	
+
 	// no need to compare content if size is different
 	if ( charCount != rhsCharCount )
 		return false;
@@ -6573,7 +6656,7 @@ const char* ObjC1ClassSection<A>::unlabeledAtomName(Parser<A>& parser, pint_t ad
 	uint32_t classObjcFileOffset = sct->offset() - sct->addr() + addr;
 	const uint8_t* mappedFileContent = this->file().fileContent();
 	pint_t nameAddr = P::getP(*((pint_t*)(mappedFileContent+classObjcFileOffset+2*sizeof(pint_t))));
-	
+
 	// find section containing string address to get string bytes
 	const macho_section<P>* const sections = parser.firstMachOSection();
 	const uint32_t sectionCount = parser.machOSectionCount();
@@ -6638,7 +6721,7 @@ unsigned long ObjC2ClassRefsSection<A>::contentHash(const class Atom<A>* atom, c
 }
 
 template <typename A>
-bool ObjC2ClassRefsSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+bool ObjC2ClassRefsSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& indirectBindingTable) const
 {
 	assert(this->type() == rhs.section().type());
@@ -6705,7 +6788,7 @@ const char* PointerToCStringSection<A>::targetCString(const class Atom<A>* atom,
 }
 
 template <typename A>
-unsigned long PointerToCStringSection<A>::contentHash(const class Atom<A>* atom, 
+unsigned long PointerToCStringSection<A>::contentHash(const class Atom<A>* atom,
 													const ld::IndirectBindingTable& indirectBindingTable) const
 {
 	// make hash from section name and target cstring name
@@ -6720,7 +6803,7 @@ unsigned long PointerToCStringSection<A>::contentHash(const class Atom<A>* atom,
 }
 
 template <typename A>
-bool PointerToCStringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+bool PointerToCStringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& indirectBindingTable) const
 {
 	assert(this->type() == rhs.section().type());
@@ -6728,8 +6811,8 @@ bool PointerToCStringSection<A>::canCoalesceWith(const class Atom<A>* atom, cons
 	// we only want to coalesce in same section name
 	if ( *this != rhs.section() )
 		return false;
-	
-	// get string content for this 
+
+	// get string content for this
 	const char* cstringContent = this->targetCString(atom, indirectBindingTable);
 	const Atom<A>* rhsAtom = dynamic_cast<const Atom<A>*>(&rhs);
 	assert(rhsAtom !=  NULL);
@@ -6756,7 +6839,7 @@ unsigned long UTF16StringSection<A>::contentHash(const class Atom<A>* atom, cons
 }
 
 template <typename A>
-bool UTF16StringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs, 
+bool UTF16StringSection<A>::canCoalesceWith(const class Atom<A>* atom, const ld::Atom& rhs,
 													const ld::IndirectBindingTable& ind) const
 {
 	if ( rhs.section().type() != ld::Section::typeUTF16Strings )
@@ -6872,7 +6955,7 @@ bool Section<x86_64>::addRelocFixup(class Parser<x86_64>& parser, const macho_re
 		case X86_64_RELOC_SIGNED_4:
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and X86_64_RELOC_SIGNED* not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and X86_64_RELOC_SIGNED* not supported";
 			switch ( reloc->r_type() ) {
 				case X86_64_RELOC_SIGNED:
@@ -6882,12 +6965,12 @@ bool Section<x86_64>::addRelocFixup(class Parser<x86_64>& parser, const macho_re
 					if ( reloc->r_extern() )
 						target.addend += 1;
 					parser.addFixups(src, ld::Fixup::kindStoreX86PCRel32_1, target);
-					break;	
+					break;
 				case X86_64_RELOC_SIGNED_2:
 					if ( reloc->r_extern() )
 						target.addend += 2;
 					parser.addFixups(src, ld::Fixup::kindStoreX86PCRel32_2, target);
-					break;	
+					break;
 				case X86_64_RELOC_SIGNED_4:
 					if ( reloc->r_extern() )
 						target.addend += 4;
@@ -6920,20 +7003,20 @@ bool Section<x86_64>::addRelocFixup(class Parser<x86_64>& parser, const macho_re
 			}
 			break;
 		case X86_64_RELOC_GOT:
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "not extern and X86_64_RELOC_GOT not supported";
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and X86_64_RELOC_GOT not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and X86_64_RELOC_GOT not supported";
 			parser.addFixups(src, ld::Fixup::kindStoreX86PCRel32GOT, target);
 			break;
 		case X86_64_RELOC_GOT_LOAD:
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "not extern and X86_64_RELOC_GOT_LOAD not supported";
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and X86_64_RELOC_GOT_LOAD not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and X86_64_RELOC_GOT_LOAD not supported";
 			parser.addFixups(src, ld::Fixup::kindStoreX86PCRel32GOTLoad, target);
 			break;
@@ -6989,11 +7072,11 @@ bool Section<x86_64>::addRelocFixup(class Parser<x86_64>& parser, const macho_re
 				parser.addFixup(src, ld::Fixup::k4of4, ld::Fixup::kindStoreLittleEndian64);
 			break;
 		case X86_64_RELOC_TLV:
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "not extern and X86_64_RELOC_TLV not supported";
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and X86_64_RELOC_TLV not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and X86_64_RELOC_TLV not supported";
 			parser.addFixups(src, ld::Fixup::kindStoreX86PCRel32TLVLoad, target);
 			break;
@@ -7094,7 +7177,7 @@ bool Section<x86>::addRelocFixup(class Parser<x86>& parser, const macho_relocati
 					target.atom = NULL;
 					target.name = parser.nameFromSymbol(sym);
 					target.weakImport = parser.weakImportFromSymbol(sym);
-				}			
+				}
 				target.addend = (int64_t)(int32_t)E::get32(*((uint32_t*)fixUpPtr));
 				if ( reloc->r_pcrel() ) {
 					parser.addFixups(src, ld::Fixup::kindStoreX86PCRel32TLVLoad, target);
@@ -7176,7 +7259,7 @@ bool Section<x86>::addRelocFixup(class Parser<x86>& parser, const macho_relocati
 			case GENERIC_RELOC_SECTDIFF:
 			case GENERIC_RELOC_LOCAL_SECTDIFF:
 				{
-					if ( !nextRelocIsPair ) 
+					if ( !nextRelocIsPair )
 						throw "GENERIC_RELOC_SECTDIFF missing following pair";
 					switch ( sreloc->r_length() ) {
 						case 0:
@@ -7242,7 +7325,406 @@ bool Section<x86>::addRelocFixup(class Parser<x86>& parser, const macho_relocati
 }
 
 
-	
+//
+// ppc and ppc64 both use the same relocations, so process them in one common routine
+//
+template <typename A>
+bool Section<A>::addRelocFixup_powerpc(class Parser<A>& parser,
+										  const macho_relocation_info<typename A::P>* reloc)
+{
+	const macho_section<P>* sect = this->machoSection();
+	bool result = false;
+	uint32_t srcAddr;
+	uint32_t dstAddr;
+	uint32_t* fixUpPtr;
+	int32_t displacement = 0;
+	uint32_t instruction = 0;
+	int16_t lowBits;
+	pint_t contentValue = 0;
+	typename Parser<A>::SourceLocation	src;
+	typename Parser<A>::TargetDesc		target;
+
+	if ( (reloc->r_address() & R_SCATTERED) == 0 ) {
+		srcAddr = sect->addr() + reloc->r_address();
+		src.atom = this->findAtomByAddress(srcAddr);
+		src.offsetInAtom = srcAddr - src.atom->_objAddress;
+		const macho_relocation_info<P>* nextReloc = &reloc[1];
+		fixUpPtr = (uint32_t*)(file().fileContent() + sect->offset() + reloc->r_address());
+		if ( reloc->r_type() != PPC_RELOC_PAIR )
+			instruction = BigEndian::get32(*fixUpPtr);
+		if ( reloc->r_extern() ) {
+			target.atom = NULL;
+			const macho_nlist<P>& targetSymbol = parser.symbolFromIndex(reloc->r_symbolnum());
+			target.name = parser.nameFromSymbol(targetSymbol);
+			target.weakImport = parser.weakImportFromSymbol(targetSymbol);
+		}
+		switch ( reloc->r_type() ) {
+			case PPC_RELOC_BR24:
+				assert((instruction & 0x4C000000) == 0x48000000);
+				displacement = (instruction & 0x03FFFFFC);
+				if ( (displacement & 0x02000000) != 0 )
+					displacement |= 0xFC000000;
+				if ( reloc->r_extern() ) {
+					target.addend = srcAddr + displacement;
+				}
+				else {
+					dstAddr = srcAddr + displacement;
+					parser.findTargetFromAddressAndSectionNum(dstAddr, reloc->r_symbolnum(), target);
+				}
+				// special case "calls" for dtrace
+				if ( (target.name != NULL) && (strncmp(target.name, "___dtrace_probe$", 16) == 0) ) {
+					parser.addFixup(src, ld::Fixup::k1of1,
+															ld::Fixup::kindStorePPCDtraceCallSiteNop, false, target.name);
+					parser.addDtraceExtraInfos(src, &target.name[16]);
+				}
+				else if ( (target.name != NULL) && (strncmp(target.name, "___dtrace_isenabled$", 20) == 0) ) {
+					parser.addFixup(src, ld::Fixup::k1of1,
+															ld::Fixup::kindStorePPCDtraceIsEnableSiteClear, false, target.name);
+					parser.addDtraceExtraInfos(src, &target.name[20]);
+				}
+				else {
+					parser.addFixups(src, ld::Fixup::kindStorePPCBranch24, target);
+				}
+				break;
+			case PPC_RELOC_BR14:
+				displacement = (instruction & 0x0000FFFC);
+				if ( (displacement & 0x00008000) != 0 )
+					displacement |= 0xFFFF0000;
+				if ( reloc->r_extern() ) {
+					target.addend = srcAddr + displacement;
+				}
+				else {
+					dstAddr = srcAddr + displacement;
+					parser.findTargetFromAddressAndSectionNum(dstAddr, reloc->r_symbolnum(), target);
+				}
+				parser.addFixups(src, ld::Fixup::kindStorePPCBranch14, target);
+				break;
+			case PPC_RELOC_PAIR:
+				// skip, processed by a previous look ahead
+				break;
+			case PPC_RELOC_LO16:
+				if ( nextReloc->r_type() != PPC_RELOC_PAIR )
+					throw "PPC_RELOC_LO16 missing following pair";
+				result = true;
+				lowBits = (instruction & 0x0000FFFF);
+				dstAddr = (nextReloc->r_address() << 16) + ((uint32_t)lowBits & 0x0000FFFF);
+				if ( reloc->r_extern() ) {
+					target.addend = dstAddr;
+				}
+				else {
+					parser.findTargetFromAddressAndSectionNum(dstAddr, reloc->r_symbolnum(), target);
+				}
+				parser.addFixups(src, ld::Fixup::kindStorePPCAbsLow16, target);
+				break;
+			case PPC_RELOC_LO14:
+				if ( nextReloc->r_type() != PPC_RELOC_PAIR )
+					throw "PPC_RELOC_LO14 missing following pair";
+				result = true;
+				lowBits = (instruction & 0xFFFC);
+				dstAddr = (nextReloc->r_address() << 16) + ((uint32_t)lowBits & 0x0000FFFF);
+				if ( reloc->r_extern() ) {
+					target.addend = dstAddr;
+				}
+				else {
+					parser.findTargetFromAddressAndSectionNum(dstAddr, reloc->r_symbolnum(), target);
+				}
+				parser.addFixups(src, ld::Fixup::kindStorePPCAbsLow14, target);
+				break;
+			case PPC_RELOC_HI16:
+				if ( nextReloc->r_type() != PPC_RELOC_PAIR )
+					throw "PPC_RELOC_HI16 missing following pair";
+				result = true;
+				lowBits = (nextReloc->r_address() & 0xFFFF);
+				dstAddr = ((instruction & 0xFFFF) << 16) | (lowBits & 0x0000FFFF);
+				if ( reloc->r_extern() ) {
+					target.addend = dstAddr;
+				}
+				else {
+					parser.findTargetFromAddressAndSectionNum(dstAddr, reloc->r_symbolnum(), target);
+				}
+				parser.addFixups(src, ld::Fixup::kindStorePPCAbsHigh16, target);
+				break;
+			case PPC_RELOC_HA16:
+				if ( nextReloc->r_type() != PPC_RELOC_PAIR )
+					throw "PPC_RELOC_HA16 missing following pair";
+				result = true;
+				lowBits = (nextReloc->r_address() & 0x0000FFFF);
+				dstAddr = ((instruction & 0xFFFF) << 16) + (int32_t)lowBits;
+				if ( reloc->r_extern() ) {
+					target.addend = dstAddr;
+				}
+				else {
+					parser.findTargetFromAddressAndSectionNum(dstAddr, reloc->r_symbolnum(), target);
+				}
+				parser.addFixups(src, ld::Fixup::kindStorePPCAbsHigh16AddLow, target);
+				break;
+			case PPC_RELOC_VANILLA:
+				contentValue = P::getP(*((pint_t*)fixUpPtr));
+				if ( reloc->r_extern() ) {
+					target.addend = contentValue;
+				}
+				else {
+					parser.findTargetFromAddressAndSectionNum(contentValue, reloc->r_symbolnum(), target);
+				}
+				switch ( reloc->r_length() ) {
+					case 0:
+					case 1:
+						throw "bad r_length in PPC_RELOC_VANILLA";
+					case 2:
+						parser.addFixups(src, ld::Fixup::kindStoreBigEndian32, target);
+						break;
+					case 3:
+						parser.addFixups(src, ld::Fixup::kindStoreBigEndian64, target);
+						break;
+				}
+				break;
+			case PPC_RELOC_JBSR:
+				// this is from -mlong-branch codegen.  We ignore the jump island and make reference to the real target
+				if ( nextReloc->r_type() != PPC_RELOC_PAIR )
+					throw "PPC_RELOC_JBSR missing following pair";
+				if ( !parser._hasLongBranchStubs )
+					warning("object file compiled with -mlong-branch which is no longer needed. "
+							"To remove this warning, recompile without -mlong-branch: %s", parser._path);
+				parser._hasLongBranchStubs = true;
+				result = true;
+				if ( reloc->r_extern() ) {
+					throw "PPC_RELOC_JBSR should not be using an external relocation";
+				}
+				parser.findTargetFromAddressAndSectionNum(nextReloc->r_address(), reloc->r_symbolnum(), target);
+				parser.addFixups(src, ld::Fixup::kindStorePPCBranch24, target);
+				break;
+			default:
+				warning("unknown relocation type %d", reloc->r_type());
+		}
+	}
+	else {
+		const macho_scattered_relocation_info<P>* sreloc = (macho_scattered_relocation_info<P>*)reloc;
+		// file format allows pair to be scattered or not
+		const macho_scattered_relocation_info<P>* nextSReloc = &sreloc[1];
+		const macho_relocation_info<P>* nextReloc = &reloc[1];
+		srcAddr = sect->addr() + sreloc->r_address();
+		dstAddr = sreloc->r_value();
+		fixUpPtr = (uint32_t*)(file().fileContent() + sect->offset() + sreloc->r_address());
+		instruction = BigEndian::get32(*fixUpPtr);
+		src.atom = this->findAtomByAddress(srcAddr);
+		src.offsetInAtom = srcAddr - src.atom->_objAddress;
+		typename Parser<A>::TargetDesc		picBase;
+		bool nextRelocIsPair = false;
+		uint32_t nextRelocAddress = 0;
+		uint32_t nextRelocValue = 0;
+		if ( (nextReloc->r_address() & R_SCATTERED) == 0 ) {
+			if ( nextReloc->r_type() == PPC_RELOC_PAIR ) {
+				nextRelocIsPair = true;
+				nextRelocAddress = nextReloc->r_address();
+				result = true;
+			}
+		}
+		else {
+			if ( nextSReloc->r_type() == PPC_RELOC_PAIR ) {
+				nextRelocIsPair = true;
+				nextRelocAddress = nextSReloc->r_address();
+				nextRelocValue = nextSReloc->r_value();
+				result = true;
+			}
+		}
+		switch ( sreloc->r_type() ) {
+			case PPC_RELOC_VANILLA:
+				// with a scattered relocation we get both the target (sreloc->r_value()) and the target+offset (*fixUpPtr)
+				target.atom = parser.findAtomByAddress(sreloc->r_value());
+				switch ( sreloc->r_length() ) {
+					case 0:
+					case 1:
+						throw "unsuppored r_length < 2 for scattered PPC_RELOC_VANILLA";
+					case 2:
+						contentValue = BigEndian::get32(*(uint32_t*)fixUpPtr);
+						target.addend = contentValue - target.atom->_objAddress;
+						parser.addFixups(src, ld::Fixup::kindStoreBigEndian32, target);
+						break;
+					case 3:
+						contentValue = BigEndian::get64(*(uint64_t*)fixUpPtr);
+						target.addend = contentValue - target.atom->_objAddress;
+						parser.addFixups(src, ld::Fixup::kindStoreBigEndian64, target);
+						break;
+				}
+				break;
+			case PPC_RELOC_BR14:
+				displacement = (instruction & 0x0000FFFC);
+				if ( (displacement & 0x00008000) != 0 )
+					displacement |= 0xFFFF0000;
+				target.atom = parser.findAtomByAddress(sreloc->r_value());
+				target.addend = (srcAddr + displacement) - target.atom->_objAddress;
+				parser.addFixups(src, ld::Fixup::kindStorePPCBranch14, target);
+				break;
+			case PPC_RELOC_BR24:
+				assert((instruction & 0x4C000000) == 0x48000000);
+				displacement = (instruction & 0x03FFFFFC);
+				if ( (displacement & 0x02000000) != 0 )
+					displacement |= 0xFC000000;
+				target.atom = parser.findAtomByAddress(sreloc->r_value());
+				target.addend = (srcAddr + displacement) - target.atom->_objAddress;
+				parser.addFixups(src, ld::Fixup::kindStorePPCBranch24, target);
+				break;
+			case PPC_RELOC_LO16_SECTDIFF:
+				if ( ! nextRelocIsPair )
+					throw "PPC_RELOC_LO16_SECTDIFF missing following pair";
+				lowBits = (instruction & 0xFFFF);
+				dstAddr = nextRelocValue + ((nextRelocAddress << 16) | ((uint32_t)lowBits & 0x0000FFFF));
+				parser.findTargetFromAddress(sreloc->r_value(), target);
+				if ( target.atom != NULL )
+					target.addend = dstAddr - target.atom->_objAddress;
+				picBase.atom = parser.findAtomByAddress(nextRelocValue);
+				picBase.addend = nextRelocValue - picBase.atom->_objAddress;
+				picBase.weakImport = false;
+				picBase.name = NULL;
+				parser.addFixups(src, ld::Fixup::kindStorePPCPicLow16, target, picBase);
+				break;
+			case PPC_RELOC_LO14_SECTDIFF:
+				if ( ! nextRelocIsPair )
+					throw "PPC_RELOC_LO14_SECTDIFF missing following pair";
+				lowBits = (instruction & 0xFFFC);
+				dstAddr = nextRelocValue + ((nextRelocAddress << 16) | ((uint32_t)lowBits & 0x0000FFFF));
+				parser.findTargetFromAddress(sreloc->r_value(), target);
+				if ( target.atom != NULL )
+					target.addend = dstAddr - target.atom->_objAddress;
+				picBase.atom = parser.findAtomByAddress(nextRelocValue);
+				picBase.addend = nextRelocValue - picBase.atom->_objAddress;
+				picBase.weakImport = false;
+				picBase.name = NULL;
+				parser.addFixups(src, ld::Fixup::kindStorePPCPicLow14, target, picBase);
+				break;
+			case PPC_RELOC_HA16_SECTDIFF:
+				if ( ! nextRelocIsPair )
+					throw "PPC_RELOC_HA16_SECTDIFF missing following pair";
+				lowBits = (nextRelocAddress & 0x0000FFFF);
+				dstAddr = nextRelocValue + (((instruction & 0x0000FFFF) << 16) + (int32_t)lowBits);
+				parser.findTargetFromAddress(sreloc->r_value(), target);
+				if ( target.atom != NULL )
+					target.addend = dstAddr - target.atom->_objAddress;
+				picBase.atom = parser.findAtomByAddress(nextRelocValue);
+				picBase.addend = nextRelocValue - picBase.atom->_objAddress;
+				picBase.weakImport = false;
+				picBase.name = NULL;
+				parser.addFixups(src, ld::Fixup::kindStorePPCPicHigh16AddLow, target, picBase);
+				break;
+			case PPC_RELOC_LO14:
+				if ( ! nextRelocIsPair )
+					throw "PPC_RELOC_LO14 missing following pair";
+				lowBits = (instruction & 0xFFFC);
+				dstAddr = ((nextRelocAddress << 16) + ((uint32_t)lowBits & 0x0000FFFF));
+				parser.findTargetFromAddress(sreloc->r_value(), dstAddr, target);
+				parser.addFixups(src, ld::Fixup::kindStorePPCAbsLow14, target);
+				break;
+			case PPC_RELOC_LO16:
+				if ( ! nextRelocIsPair )
+					throw "PPC_RELOC_LO16 missing following pair";
+				lowBits = (instruction & 0xFFFF);
+				dstAddr = ((nextRelocAddress << 16) + ((uint32_t)lowBits & 0x0000FFFF));
+				parser.findTargetFromAddress(sreloc->r_value(), dstAddr, target);
+				parser.addFixups(src, ld::Fixup::kindStorePPCAbsLow16, target);
+				break;
+			case PPC_RELOC_HA16:
+				if ( ! nextRelocIsPair )
+					throw "PPC_RELOC_HA16 missing following pair";
+				lowBits = (nextRelocAddress & 0xFFFF);
+				dstAddr = (((instruction & 0xFFFF) << 16) + (int32_t)lowBits);
+				parser.findTargetFromAddress(sreloc->r_value(), dstAddr, target);
+				parser.addFixups(src, ld::Fixup::kindStorePPCAbsHigh16AddLow, target);
+				break;
+			case PPC_RELOC_HI16:
+				if ( ! nextRelocIsPair )
+					throw "PPC_RELOC_HI16 missing following pair";
+				lowBits = (nextRelocAddress & 0xFFFF);
+				dstAddr = ((instruction & 0xFFFF) << 16) | (lowBits & 0x0000FFFF);
+				parser.findTargetFromAddress(sreloc->r_value(), dstAddr, target);
+				parser.addFixups(src, ld::Fixup::kindStorePPCAbsHigh16, target);
+				break;
+			case PPC_RELOC_SECTDIFF:
+			case PPC_RELOC_LOCAL_SECTDIFF:
+				{
+					if ( ! nextRelocIsPair )
+						throw "PPC_RELOC_SECTDIFF missing following pair";
+					ld::Fixup::Kind kind = ld::Fixup::kindNone;
+					switch ( sreloc->r_length() ) {
+						case 0:
+							throw "bad length for PPC_RELOC_SECTDIFF";
+						case 1:
+							contentValue = (int32_t)(int16_t)BigEndian::get16(*((uint16_t*)fixUpPtr));
+							kind = ld::Fixup::kindStoreBigEndian16;
+							break;
+						case 2:
+							contentValue = BigEndian::get32(*((uint32_t*)fixUpPtr));
+							kind = ld::Fixup::kindStoreBigEndian32;
+							break;
+						case 3:
+							contentValue = BigEndian::get64(*((uint64_t*)fixUpPtr));
+							kind = ld::Fixup::kindStoreBigEndian64;
+							break;
+						break;
+					}
+					Atom<A>* fromAtom  = parser.findAtomByAddress(nextRelocValue);
+					Atom<A>* targetAtom = parser.findAtomByAddress(sreloc->r_value());
+					uint32_t offsetInFrom = nextRelocValue - fromAtom->_objAddress;
+					uint32_t offsetInTarget = sreloc->r_value() - targetAtom->_objAddress;
+					// check for addend encoded in the section content
+					int32_t addend = contentValue - (sreloc->r_value() - nextRelocValue);
+					if ( addend < 0 ) {
+						if ( targetAtom->scope() == ld::Atom::scopeTranslationUnit ) {
+							parser.addFixup(src, ld::Fixup::k1of5, ld::Fixup::kindSetTargetAddress, targetAtom);
+						}
+						else if ( (targetAtom->combine() == ld::Atom::combineByNameAndContent) || (targetAtom->combine() == ld::Atom::combineByNameAndReferences) ) {
+							parser.addFixup(src, ld::Fixup::k1of5, ld::Fixup::kindSetTargetAddress, ld::Fixup::bindingByContentBound, targetAtom);
+						}
+						else {
+							parser.addFixup(src, ld::Fixup::k1of5, ld::Fixup::kindSetTargetAddress, false, targetAtom->name());
+						}
+						parser.addFixup(src, ld::Fixup::k2of5, ld::Fixup::kindAddAddend, offsetInTarget);
+						parser.addFixup(src, ld::Fixup::k3of5, ld::Fixup::kindSubtractTargetAddress, fromAtom);
+						parser.addFixup(src, ld::Fixup::k4of5, ld::Fixup::kindSubtractAddend, offsetInFrom-addend);
+						parser.addFixup(src, ld::Fixup::k5of5, kind);
+					}
+					else {
+						if ( targetAtom->scope() == ld::Atom::scopeTranslationUnit ) {
+							parser.addFixup(src, ld::Fixup::k1of5, ld::Fixup::kindSetTargetAddress, targetAtom);
+						}
+						else if ( (targetAtom->combine() == ld::Atom::combineByNameAndContent) || (targetAtom->combine() == ld::Atom::combineByNameAndReferences) ) {
+							parser.addFixup(src, ld::Fixup::k1of5, ld::Fixup::kindSetTargetAddress, ld::Fixup::bindingByContentBound, targetAtom);
+						}
+						else {
+							parser.addFixup(src, ld::Fixup::k1of5, ld::Fixup::kindSetTargetAddress, false, targetAtom->name());
+						}
+						parser.addFixup(src, ld::Fixup::k2of5, ld::Fixup::kindAddAddend, offsetInTarget+addend);
+						parser.addFixup(src, ld::Fixup::k3of5, ld::Fixup::kindSubtractTargetAddress, fromAtom);
+						parser.addFixup(src, ld::Fixup::k4of5, ld::Fixup::kindSubtractAddend, offsetInFrom);
+						parser.addFixup(src, ld::Fixup::k5of5, kind);
+					}
+				}
+				break;
+			case PPC_RELOC_PAIR:
+				break;
+			case PPC_RELOC_HI16_SECTDIFF:
+				warning("unexpected scattered relocation type PPC_RELOC_HI16_SECTDIFF");
+				break;
+			default:
+				warning("unknown scattered relocation type %d", sreloc->r_type());
+		}
+	}
+	return result;
+}
+
+
+template <>
+bool Section<ppc>::addRelocFixup(class Parser<ppc>& parser, const macho_relocation_info<P>* reloc)
+{
+	return addRelocFixup_powerpc(parser, reloc);
+}
+
+
+template <>
+bool Section<ppc64>::addRelocFixup(class Parser<ppc64>& parser, const macho_relocation_info<P>* reloc)
+{
+	return addRelocFixup_powerpc(parser, reloc);
+}
+
 
 
 #if SUPPORT_ARCH_arm_any
@@ -7260,7 +7742,7 @@ bool Section<arm>::addRelocFixup(class Parser<arm>& parser, const macho_relocati
 	Parser<arm>::SourceLocation	src;
 	Parser<arm>::TargetDesc		target;
 	const macho_relocation_info<P>* nextReloc;
-	
+
 	if ( (reloc->r_address() & R_SCATTERED) == 0 ) {
 		bool externSymbolIsThumbDef = false;
 		srcAddr = sect->addr() + reloc->r_address();
@@ -7308,14 +7790,14 @@ bool Section<arm>::addRelocFixup(class Parser<arm>& parser, const macho_relocati
 					dstAddr = srcAddr + displacement;
 					parser.findTargetFromAddressAndSectionNum(dstAddr, reloc->r_symbolnum(), target);
 				}
-				// special case "calls" for dtrace 
+				// special case "calls" for dtrace
 				if ( (target.name != NULL) && (strncmp(target.name, "___dtrace_probe$", 16) == 0) ) {
 					parser.addFixup(src, ld::Fixup::k1of1,
 															ld::Fixup::kindStoreARMDtraceCallSiteNop, false, target.name);
 					parser.addDtraceExtraInfos(src, &target.name[16]);
 				}
 				else if ( (target.name != NULL) && (strncmp(target.name, "___dtrace_isenabled$", 20) == 0) ) {
-					parser.addFixup(src, ld::Fixup::k1of1, 
+					parser.addFixup(src, ld::Fixup::k1of1,
 															ld::Fixup::kindStoreARMDtraceIsEnableSiteClear, false, target.name);
 					parser.addDtraceExtraInfos(src, &target.name[20]);
 				}
@@ -7356,14 +7838,14 @@ bool Section<arm>::addRelocFixup(class Parser<arm>& parser, const macho_relocati
 				else {
 					parser.findTargetFromAddressAndSectionNum(dstAddr, reloc->r_symbolnum(), target);
 				}
-				// special case "calls" for dtrace 
+				// special case "calls" for dtrace
 				if ( (target.name != NULL) && (strncmp(target.name, "___dtrace_probe$", 16) == 0) ) {
 					parser.addFixup(src, ld::Fixup::k1of1,
 															ld::Fixup::kindStoreThumbDtraceCallSiteNop, false, target.name);
 					parser.addDtraceExtraInfos(src, &target.name[16]);
 				}
 				else if ( (target.name != NULL) && (strncmp(target.name, "___dtrace_isenabled$", 20) == 0) ) {
-					parser.addFixup(src, ld::Fixup::k1of1, 
+					parser.addFixup(src, ld::Fixup::k1of1,
 															ld::Fixup::kindStoreThumbDtraceIsEnableSiteClear, false, target.name);
 					parser.addDtraceExtraInfos(src, &target.name[20]);
 				}
@@ -7554,7 +8036,7 @@ bool Section<arm>::addRelocFixup(class Parser<arm>& parser, const macho_relocati
 			case ARM_RELOC_SECTDIFF:
 			case ARM_RELOC_LOCAL_SECTDIFF:
 				{
-					if ( ! nextRelocIsPair ) 
+					if ( ! nextRelocIsPair )
 						throw "ARM_RELOC_SECTDIFF missing following pair";
 					if ( sreloc->r_length() != 2 )
 						throw "bad length for ARM_RELOC_SECTDIFF";
@@ -7574,7 +8056,7 @@ bool Section<arm>::addRelocFixup(class Parser<arm>& parser, const macho_relocati
 						src2.offsetInAtom = 0;
 						parser.addFixup(src2, ld::Fixup::k1of1, ld::Fixup::kindNoneGroupSubordinateLSDA, targetAtom);
 					}
-					if ( addend < 0 ) { 
+					if ( addend < 0 ) {
 						// switch binding base on coalescing
 						if ( targetAtom->scope() == ld::Atom::scopeTranslationUnit ) {
 							parser.addFixup(src, ld::Fixup::k1of5, ld::Fixup::kindSetTargetAddress, targetAtom);
@@ -7633,7 +8115,7 @@ bool Section<arm>::addRelocFixup(class Parser<arm>& parser, const macho_relocati
 					}
 					if ( sreloc->r_length() & 1 )
 						dstAddr = ((instruction16 << 16) | other16);
-					else 
+					else
 						dstAddr = (other16 << 16) | instruction16;
 					if ( targetAtom->isThumb() )
 						dstAddr &= (-2); // remove thumb bit
@@ -7686,7 +8168,7 @@ bool Section<arm>::addRelocFixup(class Parser<arm>& parser, const macho_relocati
 					}
 					if ( sreloc->r_length() & 1 )
 						dstAddr = ((instruction16 << 16) | other16);
-					else 
+					else
 						dstAddr = (other16 << 16) | instruction16;
 					if ( targetAtom->scope() == ld::Atom::scopeTranslationUnit ) {
 						parser.addFixup(src, ld::Fixup::k1of3, ld::Fixup::kindSetTargetAddress, targetAtom);
@@ -7730,7 +8212,7 @@ bool Section<arm64>::addRelocFixup(class Parser<arm64>& parser, const macho_relo
 	Parser<arm64>::TargetDesc		toTarget;
 	int32_t prefixRelocAddend = 0;
 	if ( reloc->r_type() == ARM64_RELOC_ADDEND ) {
-		uint32_t rawAddend = reloc->r_symbolnum(); 
+		uint32_t rawAddend = reloc->r_symbolnum();
 		prefixRelocAddend = rawAddend;
 		if ( rawAddend & 0x00800000 )
 			prefixRelocAddend |= 0xFF000000; // sign extend 24-bit signed int to 32-bits
@@ -7815,7 +8297,7 @@ bool Section<arm64>::addRelocFixup(class Parser<arm64>& parser, const macho_relo
 		case ARM64_RELOC_BRANCH26:
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and ARM64_RELOC_BRANCH26 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_BRANCH26 not supported";
 			if ( reloc->r_length() != 2 )
 				throw "r_length != 2 and ARM64_RELOC_BRANCH26 not supported";
@@ -7846,9 +8328,9 @@ bool Section<arm64>::addRelocFixup(class Parser<arm64>& parser, const macho_relo
 		case ARM64_RELOC_PAGE21:
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and ARM64_RELOC_PAGE21 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_PAGE21 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_PAGE21 not supported";
 			target.addend = prefixRelocAddend;
 			instruction = contentValue;
@@ -7868,9 +8350,9 @@ bool Section<arm64>::addRelocFixup(class Parser<arm64>& parser, const macho_relo
 		case ARM64_RELOC_PAGEOFF12:
 			if ( reloc->r_pcrel() )
 				throw "pcrel and ARM64_RELOC_PAGEOFF12 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_PAGEOFF12 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_PAGEOFF12 not supported";
 			target.addend = prefixRelocAddend;
 			instruction = contentValue;
@@ -7896,7 +8378,7 @@ bool Section<arm64>::addRelocFixup(class Parser<arm64>& parser, const macho_relo
 					warning("pageoff12 instruction at 0x%08X has embedded addend. ARM64_RELOC_ADDEND should be used instead", reloc->r_address());
 					target.addend = encodedAddend;
 				}
-				else {	
+				else {
 					throwf("pageoff12 instruction at 0x%08X has embedded addend and ARM64_RELOC_ADDEND also used", reloc->r_address());
 				}
 			}
@@ -7905,9 +8387,9 @@ bool Section<arm64>::addRelocFixup(class Parser<arm64>& parser, const macho_relo
 		case ARM64_RELOC_GOT_LOAD_PAGE21:
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and ARM64_RELOC_GOT_LOAD_PAGE21 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_GOT_LOAD_PAGE21 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_GOT_LOAD_PAGE21 not supported";
 			if ( prefixRelocAddend != 0 )
 				throw "ARM64_RELOC_ADDEND followed by ARM64_RELOC_GOT_LOAD_PAGE21 not supported";
@@ -7920,9 +8402,9 @@ bool Section<arm64>::addRelocFixup(class Parser<arm64>& parser, const macho_relo
 		case ARM64_RELOC_GOT_LOAD_PAGEOFF12:
 			if ( reloc->r_pcrel() )
 				throw "pcrel and ARM64_RELOC_GOT_LOAD_PAGEOFF12 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_GOT_LOAD_PAGEOFF12 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_GOT_LOAD_PAGEOFF12 not supported";
 			if ( prefixRelocAddend != 0 )
 				throw "ARM64_RELOC_ADDEND followed by ARM64_RELOC_GOT_LOAD_PAGEOFF12 not supported";
@@ -7933,9 +8415,9 @@ bool Section<arm64>::addRelocFixup(class Parser<arm64>& parser, const macho_relo
 		case ARM64_RELOC_TLVP_LOAD_PAGE21:
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and ARM64_RELOC_TLVP_LOAD_PAGE21 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_TLVP_LOAD_PAGE21 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_TLVP_LOAD_PAGE21 not supported";
 			if ( prefixRelocAddend != 0 )
 				throw "ARM64_RELOC_ADDEND followed by ARM64_RELOC_TLVP_LOAD_PAGE21 not supported";
@@ -7948,9 +8430,9 @@ bool Section<arm64>::addRelocFixup(class Parser<arm64>& parser, const macho_relo
 		case ARM64_RELOC_TLVP_LOAD_PAGEOFF12:
 			if ( reloc->r_pcrel() )
 				throw "pcrel and ARM64_RELOC_TLVP_LOAD_PAGEOFF12 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_TLVP_LOAD_PAGEOFF12 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_TLVP_LOAD_PAGEOFF12 not supported";
 			if ( prefixRelocAddend != 0 )
 				throw "ARM64_RELOC_ADDEND followed by ARM64_RELOC_TLVP_LOAD_PAGEOFF12 not supported";
@@ -8012,17 +8494,17 @@ bool Section<arm64>::addRelocFixup(class Parser<arm64>& parser, const macho_relo
 				parser.addFixup(src, ld::Fixup::k4of4, ld::Fixup::kindStoreLittleEndian64);
 			break;
         case ARM64_RELOC_POINTER_TO_GOT:
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_POINTER_TO_GOT not supported";
 			if ( prefixRelocAddend != 0 )
 				throw "ARM64_RELOC_ADDEND followed by ARM64_RELOC_POINTER_TO_GOT not supported";
  			if ( reloc->r_pcrel() ) {
-                if ( reloc->r_length() != 2 ) 
+                if ( reloc->r_length() != 2 )
                     throw "r_length != 2 and r_extern = 1 and ARM64_RELOC_POINTER_TO_GOT not supported";
                 parser.addFixups(src, ld::Fixup::kindStoreARM64PCRelToGOT, target);
             }
             else {
-                if ( reloc->r_length() != 3 ) 
+                if ( reloc->r_length() != 3 )
                     throw "r_length != 3 and r_extern = 0 and ARM64_RELOC_POINTER_TO_GOT not supported";
                 parser.addFixups(src, ld::Fixup::kindStoreARM64PointerToGOT, target);
             }
@@ -8090,7 +8572,7 @@ bool Section<arm64_32>::addRelocFixup(class Parser<arm64_32>& parser, const mach
 	Parser<arm64_32>::TargetDesc		toTarget;
 	int32_t prefixRelocAddend = 0;
 	if ( reloc->r_type() == ARM64_RELOC_ADDEND ) {
-		uint32_t rawAddend = reloc->r_symbolnum(); 
+		uint32_t rawAddend = reloc->r_symbolnum();
 		prefixRelocAddend = rawAddend;
 		if ( rawAddend & 0x00800000 )
 			prefixRelocAddend |= 0xFF000000; // sign extend 24-bit signed int to 32-bits
@@ -8177,7 +8659,7 @@ bool Section<arm64_32>::addRelocFixup(class Parser<arm64_32>& parser, const mach
 		case ARM64_RELOC_BRANCH26:
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and ARM64_RELOC_BRANCH26 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_BRANCH26 not supported";
 			if ( reloc->r_length() != 2 )
 				throw "r_length != 2 and ARM64_RELOC_BRANCH26 not supported";
@@ -8208,9 +8690,9 @@ bool Section<arm64_32>::addRelocFixup(class Parser<arm64_32>& parser, const mach
 		case ARM64_RELOC_PAGE21:
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and ARM64_RELOC_PAGE21 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_PAGE21 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_PAGE21 not supported";
 			target.addend = prefixRelocAddend;
 			instruction = contentValue;
@@ -8230,9 +8712,9 @@ bool Section<arm64_32>::addRelocFixup(class Parser<arm64_32>& parser, const mach
 		case ARM64_RELOC_PAGEOFF12:
 			if ( reloc->r_pcrel() )
 				throw "pcrel and ARM64_RELOC_PAGEOFF12 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_PAGEOFF12 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_PAGEOFF12 not supported";
 			target.addend = prefixRelocAddend;
 			instruction = contentValue;
@@ -8258,7 +8740,7 @@ bool Section<arm64_32>::addRelocFixup(class Parser<arm64_32>& parser, const mach
 					warning("pageoff12 instruction at 0x%08X has embedded addend. ARM64_RELOC_ADDEND should be used instead", reloc->r_address());
 					target.addend = encodedAddend;
 				}
-				else {	
+				else {
 					throwf("pageoff12 instruction at 0x%08X has embedded addend and ARM64_RELOC_ADDEND also used", reloc->r_address());
 				}
 			}
@@ -8267,9 +8749,9 @@ bool Section<arm64_32>::addRelocFixup(class Parser<arm64_32>& parser, const mach
 		case ARM64_RELOC_GOT_LOAD_PAGE21:
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and ARM64_RELOC_GOT_LOAD_PAGE21 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_GOT_LOAD_PAGE21 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_GOT_LOAD_PAGE21 not supported";
 			if ( prefixRelocAddend != 0 )
 				throw "ARM64_RELOC_ADDEND followed by ARM64_RELOC_GOT_LOAD_PAGE21 not supported";
@@ -8282,9 +8764,9 @@ bool Section<arm64_32>::addRelocFixup(class Parser<arm64_32>& parser, const mach
 		case ARM64_RELOC_GOT_LOAD_PAGEOFF12:
 			if ( reloc->r_pcrel() )
 				throw "pcrel and ARM64_RELOC_GOT_LOAD_PAGEOFF12 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_GOT_LOAD_PAGEOFF12 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_GOT_LOAD_PAGEOFF12 not supported";
 			if ( prefixRelocAddend != 0 )
 				throw "ARM64_RELOC_ADDEND followed by ARM64_RELOC_GOT_LOAD_PAGEOFF12 not supported";
@@ -8295,9 +8777,9 @@ bool Section<arm64_32>::addRelocFixup(class Parser<arm64_32>& parser, const mach
 		case ARM64_RELOC_TLVP_LOAD_PAGE21:
 			if ( ! reloc->r_pcrel() )
 				throw "not pcrel and ARM64_RELOC_TLVP_LOAD_PAGE21 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_TLVP_LOAD_PAGE21 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_TLVP_LOAD_PAGE21 not supported";
 			if ( prefixRelocAddend != 0 )
 				throw "ARM64_RELOC_ADDEND followed by ARM64_RELOC_TLVP_LOAD_PAGE21 not supported";
@@ -8310,9 +8792,9 @@ bool Section<arm64_32>::addRelocFixup(class Parser<arm64_32>& parser, const mach
 		case ARM64_RELOC_TLVP_LOAD_PAGEOFF12:
 			if ( reloc->r_pcrel() )
 				throw "pcrel and ARM64_RELOC_TLVP_LOAD_PAGEOFF12 not supported";
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_TLVP_LOAD_PAGEOFF12 not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "length != 2 and ARM64_RELOC_TLVP_LOAD_PAGEOFF12 not supported";
 			if ( prefixRelocAddend != 0 )
 				throw "ARM64_RELOC_ADDEND followed by ARM64_RELOC_TLVP_LOAD_PAGEOFF12 not supported";
@@ -8374,11 +8856,11 @@ bool Section<arm64_32>::addRelocFixup(class Parser<arm64_32>& parser, const mach
 				parser.addFixup(src, ld::Fixup::k4of4, ld::Fixup::kindStoreLittleEndian64);
 			break;
 		case ARM64_RELOC_POINTER_TO_GOT:
-			if ( ! reloc->r_extern() ) 
+			if ( ! reloc->r_extern() )
 				throw "r_extern == 0 and ARM64_RELOC_POINTER_TO_GOT not supported";
 			if ( prefixRelocAddend != 0 )
 				throw "ARM64_RELOC_ADDEND followed by ARM64_RELOC_POINTER_TO_GOT not supported";
-			if ( reloc->r_length() != 2 ) 
+			if ( reloc->r_length() != 2 )
 				throw "r_length != 2 ARM64_RELOC_POINTER_TO_GOT not supported";
 
 			if ( reloc->r_pcrel() )
@@ -8398,7 +8880,7 @@ bool ObjC1ClassSection<A>::addRelocFixup(class Parser<A>& parser, const macho_re
 {
 	// inherited
 	FixedSizeSection<A>::addRelocFixup(parser, reloc);
-	
+
 	assert(0 && "needs template specialization");
 	return false;
 }
@@ -8410,7 +8892,7 @@ bool ObjC1ClassSection<x86>::addRelocFixup(class Parser<x86>& parser, const mach
 	if ( ((reloc->r_address() & R_SCATTERED) == 0) && (reloc->r_type() == GENERIC_RELOC_VANILLA) ) {
 		assert( reloc->r_length() == 2 );
 		assert( ! reloc->r_pcrel() );
-		
+
 		const macho_section<P>* sect = this->machoSection();
 		Parser<x86>::SourceLocation	src;
 		uint32_t srcAddr = sect->addr() + reloc->r_address();
@@ -8421,14 +8903,14 @@ bool ObjC1ClassSection<x86>::addRelocFixup(class Parser<x86>& parser, const mach
 			const uint8_t* fixUpPtr = file().fileContent() + sect->offset() + reloc->r_address();
 			uint32_t contentValue = LittleEndian::get32(*((uint32_t*)fixUpPtr));
 			parser.findTargetFromAddressAndSectionNum(contentValue, reloc->r_symbolnum(), stringTarget);
-			
+
 			assert(stringTarget.atom != NULL);
 			assert(stringTarget.atom->contentType() == ld::Atom::typeCString);
 			const char* superClassBaseName = (char*)stringTarget.atom->rawContentPointer();
 			char* superClassName = new char[strlen(superClassBaseName) + 20];
 			strcpy(superClassName, ".objc_class_name_");
 			strcat(superClassName, superClassBaseName);
-			
+
 			parser.addFixup(src, ld::Fixup::k1of1, ld::Fixup::kindSetTargetAddress, false, superClassName);
 		}
 	}
@@ -8436,18 +8918,81 @@ bool ObjC1ClassSection<x86>::addRelocFixup(class Parser<x86>& parser, const mach
 	return FixedSizeSection<x86>::addRelocFixup(parser, reloc);
 }
 
+template <>
+bool ObjC1ClassSection<ppc>::addRelocFixup(class Parser<ppc>& parser, const macho_relocation_info<ppc::P>* reloc)
+{
+	// if this is the reloc for the super class name string, add implicit reference to super class
+	if ( ((reloc->r_address() & R_SCATTERED) == 0) && (reloc->r_type() == PPC_RELOC_VANILLA) ) {
+		assert( reloc->r_length() == 2 );
+		assert( ! reloc->r_pcrel() );
 
+		const macho_section<P>* sect = this->machoSection();
+		Parser<ppc>::SourceLocation	src;
+		uint32_t srcAddr = sect->addr() + reloc->r_address();
+		src.atom = this->findAtomByAddress(srcAddr);
+		src.offsetInAtom = srcAddr - src.atom->objectAddress();
+		if ( src.offsetInAtom == 4 ) {
+			Parser<ppc>::TargetDesc		stringTarget;
+			const uint8_t* fixUpPtr = file().fileContent() + sect->offset() + reloc->r_address();
+			uint32_t contentValue = BigEndian::get32(*((uint32_t*)fixUpPtr));
+			parser.findTargetFromAddressAndSectionNum(contentValue, reloc->r_symbolnum(), stringTarget);
+
+			assert(stringTarget.atom != NULL);
+			assert(stringTarget.atom->contentType() == ld::Atom::typeCString);
+			const char* superClassBaseName = (char*)stringTarget.atom->rawContentPointer();
+			char* superClassName = new char[strlen(superClassBaseName) + 20];
+			strcpy(superClassName, ".objc_class_name_");
+			strcat(superClassName, superClassBaseName);
+
+			parser.addFixup(src, ld::Fixup::k1of1, ld::Fixup::kindSetTargetAddress, false, superClassName);
+		}
+	}
+
+	// inherited
+	return FixedSizeSection<ppc>::addRelocFixup(parser, reloc);
+}
 
 template <typename A>
 bool Objc1ClassReferences<A>::addRelocFixup(class Parser<A>& parser, const macho_relocation_info<P>* reloc)
 {
 	// inherited
 	PointerToCStringSection<A>::addRelocFixup(parser, reloc);
-	
+
 	assert(0 && "needs template specialization");
 	return false;
 }
 
+template <>
+bool Objc1ClassReferences<ppc>::addRelocFixup(class Parser<ppc>& parser, const macho_relocation_info<ppc::P>* reloc)
+{
+	// add implict class refs, fixups not usable yet, so look at relocations
+	assert( (reloc->r_address() & R_SCATTERED) == 0 );
+	assert( reloc->r_type() == PPC_RELOC_VANILLA );
+	assert( reloc->r_length() == 2 );
+	assert( ! reloc->r_pcrel() );
+
+	const macho_section<P>* sect = this->machoSection();
+	Parser<ppc>::SourceLocation	src;
+	uint32_t srcAddr = sect->addr() + reloc->r_address();
+	src.atom = this->findAtomByAddress(srcAddr);
+	src.offsetInAtom = srcAddr - src.atom->objectAddress();
+	Parser<ppc>::TargetDesc		stringTarget;
+	const uint8_t* fixUpPtr = file().fileContent() + sect->offset() + reloc->r_address();
+	uint32_t contentValue = BigEndian::get32(*((uint32_t*)fixUpPtr));
+	parser.findTargetFromAddressAndSectionNum(contentValue, reloc->r_symbolnum(), stringTarget);
+
+	assert(stringTarget.atom != NULL);
+	assert(stringTarget.atom->contentType() == ld::Atom::typeCString);
+	const char* baseClassName = (char*)stringTarget.atom->rawContentPointer();
+	char* objcClassName = new char[strlen(baseClassName) + 20];
+	strcpy(objcClassName, ".objc_class_name_");
+	strcat(objcClassName, baseClassName);
+
+	parser.addFixup(src, ld::Fixup::k1of1, ld::Fixup::kindSetTargetAddress, false, objcClassName);
+
+	// inherited
+	return PointerToCStringSection<ppc>::addRelocFixup(parser, reloc);
+}
 
 
 template <>
@@ -8458,7 +9003,7 @@ bool Objc1ClassReferences<x86>::addRelocFixup(class Parser<x86>& parser, const m
 	assert( reloc->r_type() == GENERIC_RELOC_VANILLA );
 	assert( reloc->r_length() == 2 );
 	assert( ! reloc->r_pcrel() );
-	
+
 	const macho_section<P>* sect = this->machoSection();
 	Parser<x86>::SourceLocation	src;
 	uint32_t srcAddr = sect->addr() + reloc->r_address();
@@ -8468,7 +9013,7 @@ bool Objc1ClassReferences<x86>::addRelocFixup(class Parser<x86>& parser, const m
 	const uint8_t* fixUpPtr = file().fileContent() + sect->offset() + reloc->r_address();
 	uint32_t contentValue = LittleEndian::get32(*((uint32_t*)fixUpPtr));
 	parser.findTargetFromAddressAndSectionNum(contentValue, reloc->r_symbolnum(), stringTarget);
-	
+
 	assert(stringTarget.atom != NULL);
 	assert(stringTarget.atom->contentType() == ld::Atom::typeCString);
 	const char* baseClassName = (char*)stringTarget.atom->rawContentPointer();
@@ -8500,7 +9045,7 @@ void Section<arm64>::addLOH(class Parser<arm64>& parser, int kind, int count, co
 			if ( count != 3 )
 				warning("arm64 Linker Optimiztion Hint %d has wrong number of arguments", kind);
 	}
-	
+
 	// pick lowest address in tuple for use as offsetInAtom
 	uint64_t lowestAddress = addrs[0];
 	for(int i=1; i < count; ++i) {
@@ -8529,8 +9074,8 @@ void Section<arm64>::addLOH(class Parser<arm64>& parser, int kind, int count, co
 			return; // skip this LOH
 		}
 	}
-	
-	// encoded kind, count, and address deltas in 64-bit addend 
+
+	// encoded kind, count, and address deltas in 64-bit addend
 	ld::Fixup::LOH_arm64 extra;
 	extra.addend = 0;
 	extra.info.kind = kind;
@@ -8562,7 +9107,7 @@ void Section<arm64_32>::addLOH(class Parser<arm64_32>& parser, int kind, int cou
 			if ( count != 3 )
 				warning("arm64 Linker Optimiztion Hint %d has wrong number of arguments", kind);
 	}
-	
+
 	// pick lowest address in tuple for use as offsetInAtom
 	uint64_t lowestAddress = addrs[0];
 	for(int i=1; i < count; ++i) {
@@ -8591,8 +9136,8 @@ void Section<arm64_32>::addLOH(class Parser<arm64_32>& parser, int kind, int cou
 			return; // skip this LOH
 		}
 	}
-	
-	// encoded kind, count, and address deltas in 64-bit addend 
+
+	// encoded kind, count, and address deltas in 64-bit addend
 	ld::Fixup::LOH_arm64 extra;
 	extra.addend = 0;
 	extra.info.kind = kind;
@@ -8628,7 +9173,7 @@ void Section<A>::makeFixups(class Parser<A>& parser, const struct Parser<A>::CFI
 			throwf("in section %s,%s reloc %u: %s", sect->segname(), Section<A>::makeSectionName(sect), r, msg);
 		}
 	}
-	
+
 	// add follow-on fixups if .o file is missing .subsections_via_symbols
 	if ( this->addFollowOnFixups() ) {
 		Atom<A>* end = &_endAtoms[-1];
@@ -8705,7 +9250,7 @@ void Section<A>::makeFixups(class Parser<A>& parser, const struct Parser<A>::CFI
 						kind = ld::Fixup::kindDataInCodeStartJT32;
 					else if ( strncmp(&symbolName[8], "jta32$", 4) == 0 )
 						kind = ld::Fixup::kindDataInCodeStartJTA32;
-					else 
+					else
 						warning("unknown L$start$ label %s in file %s", symbolName, this->file().path());
 					if ( kind != ld::Fixup::kindNone ) {
 						Atom<A>* inAtom = parser.findAtomByAddress(sym.n_value());
@@ -8716,7 +9261,7 @@ void Section<A>::makeFixups(class Parser<A>& parser, const struct Parser<A>::CFI
 			}
 		}
 	}
-	
+
 	// <rdar://problem/11150575> Handle LC_DATA_IN_CODE in object files
 	if ( this->type() == ld::Section::typeCode ) {
 		const pint_t startAddr = this->_machOSection->addr();
@@ -8753,7 +9298,7 @@ void Section<A>::makeFixups(class Parser<A>& parser, const struct Parser<A>::CFI
 			}
 		}
 	}
-	
+
 	// <rdar://problem/11945700> convert linker optimization hints into internal format
 	if ( this->type() == ld::Section::typeCode && parser.hasOptimizationHints() ) {
 		const pint_t startAddr = this->_machOSection->addr();
@@ -8789,8 +9334,8 @@ void Section<A>::makeFixups(class Parser<A>& parser, const struct Parser<A>::CFI
 			}
 		}
 	}
-	
-	
+
+
 	// add follow-on fixups for aliases
 	if ( _hasAliases ) {
 		for(Atom<A>* p = _beginAtoms; p < _endAtoms; ++p) {
@@ -8810,7 +9355,7 @@ void Section<A>::makeFixups(class Parser<A>& parser, const struct Parser<A>::CFI
 //
 // main function used by linker to instantiate ld::Files
 //
-ld::relocatable::File* parse(const uint8_t* fileContent, uint64_t fileLength, 
+ld::relocatable::File* parse(const uint8_t* fileContent, uint64_t fileLength,
 							 const char* path, time_t modTime, ld::File::Ordinal ordinal, const ParserOptions& opts)
 {
 	switch ( opts.architecture ) {
@@ -8844,6 +9389,14 @@ ld::relocatable::File* parse(const uint8_t* fileContent, uint64_t fileLength,
 				return mach_o::relocatable::Parser<arm64_32>::parse(fileContent, fileLength, path, modTime, ordinal, opts);
 			break;
 #endif
+		case CPU_TYPE_POWERPC:
+			if ( mach_o::relocatable::Parser<ppc>::validFile(fileContent) )
+				return mach_o::relocatable::Parser<ppc>::parse(fileContent, fileLength, path, modTime, ordinal, opts);
+			break;
+		case CPU_TYPE_POWERPC64:
+			if ( mach_o::relocatable::Parser<ppc64>::validFile(fileContent) )
+				return mach_o::relocatable::Parser<ppc64>::parse(fileContent, fileLength, path, modTime, ordinal, opts);
+			break;
 	}
 	return NULL;
 }
@@ -8866,6 +9419,10 @@ bool isObjectFile(const uint8_t* fileContent, uint64_t fileLength, const ParserO
 		case CPU_TYPE_ARM64_32:
 			return ( mach_o::relocatable::Parser<arm64_32>::validFile(fileContent, opts.objSubtypeMustMatch, opts.subType) );
 #endif
+		case CPU_TYPE_POWERPC:
+			return ( mach_o::relocatable::Parser<ppc>::validFile(fileContent) );
+		case CPU_TYPE_POWERPC64:
+			return ( mach_o::relocatable::Parser<ppc64>::validFile(fileContent) );
 	}
 	return false;
 }
@@ -8912,8 +9469,19 @@ bool isObjectFile(const uint8_t* fileContent, uint64_t fileLength, cpu_type_t* r
 		return true;
 	}
 #endif
+	if ( mach_o::relocatable::Parser<ppc>::validFile(fileContent) ) {
+		*result = CPU_TYPE_POWERPC;
+		const macho_header<Pointer32<BigEndian> >* header = (const macho_header<Pointer32<BigEndian> >*)fileContent;
+		*subResult = header->cpusubtype();
+		return true;
+	}
+	if ( mach_o::relocatable::Parser<ppc64>::validFile(fileContent) ) {
+		*result = CPU_TYPE_POWERPC64;
+		*subResult = CPU_SUBTYPE_POWERPC_ALL;
+		return true;
+	}
 	return false;
-}					
+}
 
 //
 // used by linker is error messages to describe bad .o file
@@ -8939,12 +9507,18 @@ const char* archName(const uint8_t* fileContent)
 		return mach_o::relocatable::Parser<arm64_32>::fileKind(fileContent);
 	}
 #endif
+	if ( mach_o::relocatable::Parser<ppc>::validFile(fileContent) ) {
+		return mach_o::relocatable::Parser<ppc>::fileKind(fileContent);
+	}
+	if ( mach_o::relocatable::Parser<ppc64>::validFile(fileContent) ) {
+		return mach_o::relocatable::Parser<ppc64>::fileKind(fileContent);
+	}
 	return NULL;
 }
 
 //
 // Used by archive reader when -ObjC option is specified
-//	
+//
 bool hasObjC2Categories(const uint8_t* fileContent)
 {
 	if ( mach_o::relocatable::Parser<x86_64>::validFile(fileContent) ) {
@@ -8967,11 +9541,11 @@ bool hasObjC2Categories(const uint8_t* fileContent)
     }
 #endif
 	return false;
-}				
+}
 
 //
 // Used by archive reader when -ObjC option is specified
-//	
+//
 bool hasObjC1Categories(const uint8_t* fileContent)
 {
 	if ( mach_o::relocatable::Parser<x86>::validFile(fileContent, false, 0) ) {
@@ -9011,5 +9585,3 @@ bool getNonLocalSymbols(const uint8_t* fileContent, std::vector<const char*> &sy
 
 } // namespace relocatable
 } // namespace mach_o
-
-

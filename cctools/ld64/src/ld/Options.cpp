@@ -77,7 +77,22 @@ static char crashreporterBuffer[crashreporterBufferSize];
 #define HAVE_CRASHREPORTER_HEADER 0
 #endif
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1070 && HAVE_CRASHREPORTER_HEADER
-	#include <CrashReporterClient.h>
++#define CRASHREPORTER_ANNOTATIONS_SECTION "__crash_info"
++#define CRASHREPORTER_ANNOTATIONS_VERSION 4
++
++#define CRSetCrashLogMessage(m) _crc_make_setter(message, m)
++#define _crc_make_setter(attr, arg) (gCRAnnotations.attr = (uint64_t)(unsigned long)(arg))
++
++	struct crashreporter_annotations_t {
++		uint64_t version;       // unsigned long
++		uint64_t message;       // char *
++		uint64_t signature_string;  // char *
++		uint64_t backtrace;     // char *
++		uint64_t message2;      // char *
++		uint64_t thread;        // uint64_t
++		uint64_t dialog_mode;       // unsigned int
++	};
+
 	// hack until ld does not need to build on 10.6 anymore
     struct crashreporter_annotations_t gCRAnnotations 
         __attribute__((section("__DATA," CRASHREPORTER_ANNOTATIONS_SECTION))) 
@@ -2084,7 +2099,7 @@ void Options::addSection(const char* segment, const char* section, const char* p
 	::close(fd);
 
 	// record section to create
-	ExtraSection info = { segment, section, path, (uint8_t*)p, (uint64_t)stat_buf.st_size };
+	ExtraSection info = { segment, section, path, (uint8_t*)p, static_cast<uint64_t>(stat_buf.st_size) };
 	fExtraSections.push_back(info);
 }
 
