@@ -1798,9 +1798,9 @@ public:
 	pint_t			lsda() const							INLINE { return P::getP(_lsda); }
 	void			set_lsda(pint_t value)					INLINE { P::setP(_lsda, value);  }
 
-	uint32_t		codeStartFieldOffset()					INLINE { return offsetof(macho_compact_unwind_entry<P>,_codeStart); }
-	uint32_t		personalityFieldOffset()				INLINE { return offsetof(macho_compact_unwind_entry<P>,_personality); }
-	uint32_t		lsdaFieldOffset()						INLINE { return offsetof(macho_compact_unwind_entry<P>,_lsda); }
+    static uint32_t	codeStartFieldOffset()					INLINE { return offsetof(macho_compact_unwind_entry<P>,_codeStart); }
+    static uint32_t	personalityFieldOffset()				INLINE { return offsetof(macho_compact_unwind_entry<P>,_personality); }
+    static uint32_t	lsdaFieldOffset()						INLINE { return offsetof(macho_compact_unwind_entry<P>,_lsda); }
 
 	pint_t		_codeStart;
 	uint32_t	_codeLen;
